@@ -1,22 +1,47 @@
 name: Build Android APK
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # 1. Setup Java 17 (Wajib untuk Android modern)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
+      # 3. Paksa gunakan Gradle 8.7 (Biar gak error XmlParser)
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      # 4. Install Cordova & Platform
       - name: Install Cordova
         run: npm install -g cordova
+
       - name: Install Dependencies
         run: npm install
+
+      # Gunakan versi android 13 yang lebih stabil
       - name: Add Android Platform
-        run: cordova platform add android
+        run: cordova platform add android@13.0.0
+
+      # 5. Build APK
       - name: Build APK
         run: cordova build android --debug
+
+      # 6. Upload Hasilnya
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
