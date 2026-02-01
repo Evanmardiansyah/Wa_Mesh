@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Setup Java 17 (Wajib untuk Android modern)
+      # 1. Setup Java 17 (Wajib buat Android 12+)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -20,28 +20,31 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Paksa gunakan Gradle 8.7 (Biar gak error XmlParser)
+      # 3. Setup Gradle 8.7 (Biar stabil)
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.7'
 
-      # 4. Install Cordova & Platform
+      # 4. Install Cordova
       - name: Install Cordova
         run: npm install -g cordova
 
+      # 5. Install Plugin & Dependencies
       - name: Install Dependencies
         run: npm install
 
-      # Gunakan versi android 13 yang lebih stabil
+      # 6. PASANG PLATFORM ANDROID (Ini yang tadi eror/lupa)
       - name: Add Android Platform
-        run: cordova platform add android@13.0.0
+        run: |
+            cordova platform remove android || true
+            cordova platform add android@13.0.0
 
-      # 5. Build APK
+      # 7. Build APK
       - name: Build APK
         run: cordova build android --debug
 
-      # 6. Upload Hasilnya
+      # 8. Upload Hasil
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
