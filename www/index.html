@@ -3,276 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *; img-src 'self' data: content: https://user-images.githubusercontent.com;">
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *;">
     <title>WA Bluetooth</title>
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <style>
-        /* --- CSS ALA WHATSAPP --- */
-        :root {
-            --wa-teal: #008069;
-            --wa-dark-teal: #005d4b;
-            --wa-bg: #e5ddd5;
-            --chat-me: #dcf8c6;
-            --chat-other: #ffffff;
-        }
-
-        body { margin: 0; font-family: Helvetica, Arial, sans-serif; background-color: #d1d7db; user-select: none; }
+        :root { --wa-teal: #008069; --wa-bg: #e5ddd5; --active-tab: #ffffff; --inactive-tab: #8adad1; }
+        body { margin: 0; font-family: sans-serif; background: #fff; user-select: none; display: flex; flex-direction: column; height: 100vh; }
         
-        #app-container {
-            max-width: 100%; margin: 0 auto; background: #fff; height: 100vh; display: flex; flex-direction: column; position: relative;
-        }
-
-        /* Header */
-        header {
-            background-color: var(--wa-teal); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
-        }
-        .header-title { font-weight: bold; font-size: 20px; display: flex; flex-direction: column;}
-        .subtitle { font-size: 11px; font-weight: normal; margin-top: 2px;}
-        .header-icons i { margin-left: 20px; cursor: pointer; }
-
-        /* Layar Chat */
-        #chat-area {
-            flex: 1;
-            background-color: var(--wa-bg);
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
-            background-size: cover;
-            padding: 10px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Gelembung Chat */
-        .message {
-            max-width: 75%;
-            margin-bottom: 5px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 15px;
-            position: relative;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            word-wrap: break-word;
-        }
-        .message.me {
-            align-self: flex-end;
-            background-color: var(--chat-me);
-            border-top-right-radius: 0;
-        }
-        .message.other {
-            align-self: flex-start;
-            background-color: var(--chat-other);
-            border-top-left-radius: 0;
-        }
-        .msg-time {
-            font-size: 10px; color: #999; float: right; margin-top: 5px; margin-left: 8px;
-        }
-
-        /* Input Area */
-        footer {
-            padding: 5px 10px; background: #f0f0f0; display: flex; align-items: center; min-height: 50px;
-        }
-        input[type="text"] {
-            flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; margin: 0 8px; font-size: 16px;
-        }
-        .btn-round {
-            background: var(--wa-teal); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* Modal & List Device */
-        #bt-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: white; width: 85%; max-height: 70%; display:flex; flex-direction:column; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .btn-scan {
-            background: var(--wa-teal); color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-size: 16px; font-weight: bold;
-        }
-        .device-item {
-            padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;
-        }
-        .device-item:active { background-color: #f0f0f0; }
+        /* HEADER & TABS */
+        header { background-color: var(--wa-teal); color: white; padding-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
+        .top-bar { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .title { font-size: 20px; font-weight: bold; }
         
-        /* Status Badge */
-        .status-dot { height: 10px; width: 10px; background-color: #bbb; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .connected .status-dot { background-color: #25D366; box-shadow: 0 0 5px #25D366; }
+        .tabs { display: flex; margin-top: 10px; }
+        .tab { flex: 1; text-align: center; padding: 10px; text-transform: uppercase; font-size: 14px; font-weight: bold; color: var(--inactive-tab); cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab.active { color: var(--active-tab); border-bottom: 3px solid white; }
+
+        /* CONTENT AREA */
+        #main-content { flex: 1; overflow-y: auto; background: #fff; position: relative; }
+        
+        /* LIST DEVICES */
+        .device-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; cursor: pointer; }
+        .device-icon { width: 45px; height: 45px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-size: 20px; }
+        .device-info { flex: 1; }
+        .device-name { font-weight: bold; font-size: 16px; color: #333; }
+        .device-addr { font-size: 12px; color: #888; margin-top: 2px; }
+        .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #eee; color: #555; }
+
+        /* CHAT ROOM (Overlay) */
+        #chat-room { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 20; display: none; flex-direction: column; }
+        .chat-header { background: var(--wa-teal); padding: 10px; color: white; display: flex; align-items: center; }
+        .chat-area { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-opacity:0.5;}
+        
+        .msg { max-width: 75%; padding: 8px 12px; margin-bottom: 5px; border-radius: 8px; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .msg.me { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
+        .msg.other { align-self: flex-start; background: #fff; border-top-left-radius: 0; }
+
+        .chat-input { padding: 5px; background: #f0f0f0; display: flex; align-items: center; }
+        input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; margin: 0 5px; }
+        .btn-send { width: 40px; height: 40px; background: var(--wa-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-left: 5px; cursor: pointer; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 20px; color: #888; display: none; }
+        .error-box { padding: 20px; text-align: center; color: #d32f2f; display: none; }
     </style>
 </head>
 <body>
 
-<div id="app-container">
     <header>
-        <div class="header-title">
-            <span>WA Bluetooth</span>
-            <span id="conn-status" class="subtitle">Offline (Putus)</span>
+        <div class="top-bar">
+            <div class="title">WA Bluetooth</div>
+            <i class="fas fa-ellipsis-v"></i>
         </div>
-        <div class="header-icons">
-            <i class="fas fa-ellipsis-v" onclick="toggleModal()"></i>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('personal')" id="tab-personal">Personal</div>
+            <div class="tab" onclick="switchTab('nearby')" id="tab-nearby">Nearby (Sekitar)</div>
         </div>
     </header>
 
-    <div id="chat-area">
-        <div style="text-align: center; background: #e1f5fe; padding: 5px; border-radius: 5px; margin: 10px; font-size: 12px; color: #555;">
-            <i class="fas fa-info-circle"></i> Pastikan HP sudah di-pairing lewat Pengaturan Bluetooth sebelum connect di sini.
+    <div id="main-content">
+        <div id="view-personal">
+            <div class="loading" id="load-personal">Memuat perangkat tersimpan...</div>
+            <div id="list-personal"></div>
         </div>
-    </div>
 
-    <footer>
-        <input type="text" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-        <div class="btn-round" onclick="kirimPesan()">
-            <i class="fas fa-paper-plane"></i>
-        </div>
-    </footer>
-
-    <div id="bt-modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">Pilih Perangkat</h3>
-            <div id="device-list" style="flex:1; overflow-y:auto; border:1px solid #ddd; margin-bottom:10px;">
-                <div style="padding:20px; text-align:center; color:#888;">Klik Scan untuk cari teman...</div>
+        <div id="view-nearby" style="display: none;">
+            <div style="padding:15px; background:#e3f2fd; font-size:12px; color:#0d47a1;">
+                <i class="fas fa-info-circle"></i> Fitur Nearby akan mencari perangkat Bluetooth aktif di sekitar yang belum dipairing.
             </div>
-            <button class="btn-scan" onclick="scanPerangkat()">SCAN (Cari Teman)</button>
-            <button onclick="toggleModal()" style="margin-top:10px; background:none; border:none; color:#d32f2f; padding:10px;">Tutup</button>
+            <div class="loading" id="load-nearby">Sedang memindai sekitar...</div>
+            <button onclick="scanNearby()" style="width:90%; margin:5%; padding:10px; background:var(--wa-teal); color:white; border:none; border-radius:5px;">SCAN ULANG</button>
+            <div id="list-nearby"></div>
         </div>
     </div>
-</div>
 
-<script type="text/javascript" src="cordova.js"></script>
+    <div id="chat-room">
+        <div class="chat-header">
+            <i class="fas fa-arrow-left" onclick="tutupChat()" style="margin-right: 15px; cursor: pointer;"></i>
+            <div style="flex:1;">
+                <div id="chat-name" style="font-weight: bold;">Nama Kontak</div>
+                <div id="chat-status" style="font-size: 11px;">Terhubung</div>
+            </div>
+        </div>
+        <div class="chat-area" id="msg-area"></div>
+        <div class="chat-input">
+            <input type="text" id="msg-input" placeholder="Ketik pesan...">
+            <div class="btn-send" onclick="kirimPesan()"><i class="fas fa-paper-plane"></i></div>
+        </div>
+    </div>
 
-<script>
-    // --- LOGIKA UTAMA ---
-    
-    // Tunggu sampai HP siap
-    document.addEventListener('deviceready', onDeviceReady, false);
+    <script type="text/javascript" src="cordova.js"></script>
+    <script>
+        document.addEventListener('deviceready', onDeviceReady, false);
 
-    function onDeviceReady() {
-        console.log("HP Siap, Plugin Bluetooth dimuat.");
-        
-        // Cek apakah Bluetooth hidup
-        bluetoothSerial.isEnabled(
-            function() { console.log("Bluetooth is enabled"); },
-            function() { 
-                alert("Nyalakan Bluetooth dulu bro!");
-                bluetoothSerial.enable(); // Minta izin nyalakan
-            }
-        );
-
-        // Pasang 'Telinga' untuk dengar pesan masuk
-        bluetoothSerial.subscribe('\n', function (data) {
-            tambahChatKeLayar(data, 'other');
-        }, function(err){
-            console.log("Gagal subscribe: " + err);
-        });
-    }
-
-    // 1. Fungsi Kirim Pesan
-    function kirimPesan() {
-        let input = document.getElementById('msgInput');
-        let text = input.value;
-        if(text.trim() === "") return; // Jangan kirim kalau kosong
-
-        // Cek status koneksi dulu (simple check)
-        bluetoothSerial.isConnected(
-            function() {
-                // KIRIM KE BLUETOOTH
-                bluetoothSerial.write(text + "\n", function() {
-                    tambahChatKeLayar(text, 'me'); // Tampil di layar sendiri kalau sukses terkirim
-                    input.value = "";
-                }, function(err) {
-                    alert("Gagal kirim. Koneksi putus?");
-                });
-            },
-            function() {
-                alert("Belum konek ke siapa-siapa bro. Scan dulu!");
-                toggleModal();
-            }
-        );
-    }
-    
-    // Biar bisa kirim pakai tombol Enter di keyboard
-    function handleEnter(e){
-        if(e.keyCode === 13){
-            kirimPesan();
+        function onDeviceReady() {
+            // 1. MINTA IZIN DULU (KHUSUS ANDROID 12+)
+            requestPermissions();
         }
-    }
 
-    // Fungsi Render Chat Bubble
-    function tambahChatKeLayar(pesan, tipe) {
-        let area = document.getElementById('chat-area');
-        let div = document.createElement('div');
-        div.className = 'message ' + tipe;
-        
-        let now = new Date();
-        let waktu = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        
-        div.innerHTML = `${pesan} <span class="msg-time">${waktu}</span>`;
-        area.appendChild(div);
-        area.scrollTop = area.scrollHeight; 
-    }
+        // --- LOGIKA PERMISSION / IZIN ---
+        function requestPermissions() {
+            var permissions = cordova.plugins.permissions;
+            var list = [
+                permissions.BLUETOOTH_SCAN,
+                permissions.BLUETOOTH_CONNECT,
+                permissions.BLUETOOTH_ADVERTISE,
+                permissions.ACCESS_FINE_LOCATION
+            ];
 
-    // 2. Fungsi Scan & Connect
-    function toggleModal() {
-        let modal = document.getElementById('bt-modal');
-        let display = window.getComputedStyle(modal).display;
-        modal.style.display = (display === 'none') ? 'flex' : 'none';
-        
-        // Auto scan pas buka modal
-        if(modal.style.display === 'flex') {
-            scanPerangkat();
-        }
-    }
-
-    function scanPerangkat() {
-        let list = document.getElementById('device-list');
-        list.innerHTML = "<div style='padding:20px; text-align:center;'>Sedang memindai paired devices...</div>";
-        
-        // Ambil daftar perangkat yg sudah di-pairing (Lebih stabil drpd DiscoverUnpaired)
-        bluetoothSerial.list(function(devices) {
-            list.innerHTML = "";
-            if (devices.length === 0) {
-                list.innerHTML = "<div style='padding:20px; text-align:center;'>Tidak ada perangkat.<br>Silakan Pairing dulu di Pengaturan HP!</div>";
-                return;
-            }
-
-            devices.forEach(function(device) {
-                let html = `
-                <div class="device-item" onclick="connectTo('${device.address}', '${device.name}')">
-                    <div style="font-weight:bold;">${device.name}</div>
-                    <div style="font-size:12px; color:#666;">${device.address}</div>
-                </div>`;
-                list.innerHTML += html;
+            permissions.checkPermission(list, function(status) {
+                if(!status.hasPermission) {
+                    permissions.requestPermissions(list, function(status) {
+                        if(status.hasPermission) {
+                            console.log("Izin Diberikan!");
+                            loadPairedDevices(); // Langsung load data
+                        } else {
+                            alert("Aplikasi butuh izin Bluetooth agar bisa jalan, Bro!");
+                        }
+                    }, function() { alert("Gagal request izin."); });
+                } else {
+                    loadPairedDevices(); // Sudah punya izin
+                }
             });
-        }, function(err) {
-            list.innerHTML = "Error: " + err;
-        });
-    }
-
-    function connectTo(address, name) {
-        let status = document.getElementById('conn-status');
-        let list = document.getElementById('device-list');
-        
-        list.innerHTML = "<div style='padding:20px; text-align:center;'>Menghubungkan ke " + name + "...<br>Tunggu sebentar...</div>";
-        
-        bluetoothSerial.connect(address, function() {
-            // BERHASIL
-            alert("Terhubung ke " + name + "!");
-            status.innerText = "Terhubung: " + name;
-            status.style.color = "#dcf8c6"; // Agak hijau terang
-            toggleModal();
             
-            // Kirim notif ke lawan bicara (Opsional)
-            bluetoothSerial.write("[System]: Temanmu sudah masuk room.\n");
+            // Cek Bluetooth Nyala/Gak
+            bluetoothSerial.isEnabled(null, function() {
+                bluetoothSerial.enable();
+            });
             
-        }, function(err) {
-            // GAGAL
-            alert("Gagal konek: " + err);
-            status.innerText = "Offline (Putus)";
-            scanPerangkat(); // Refresh list lagi
-        });
-    }
-</script>
+            // Listen pesan masuk
+            bluetoothSerial.subscribe('\n', function(data){ tampilkanPesan(data, 'other'); }, null);
+        }
 
+        // --- LOGIKA TABS ---
+        function switchTab(tabName) {
+            // Ganti Style Tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Ganti Tampilan
+            document.getElementById('view-personal').style.display = (tabName === 'personal') ? 'block' : 'none';
+            document.getElementById('view-nearby').style.display = (tabName === 'nearby') ? 'block' : 'none';
+
+            if(tabName === 'personal') loadPairedDevices();
+            if(tabName === 'nearby') scanNearby();
+        }
+
+        // --- PERSONAL (PAIRED) ---
+        function loadPairedDevices() {
+            document.getElementById('load-personal').style.display = 'block';
+            document.getElementById('list-personal').innerHTML = "";
+            
+            bluetoothSerial.list(function(devices) {
+                document.getElementById('load-personal').style.display = 'none';
+                devices.forEach(device => {
+                    renderDevice(device, 'list-personal', true);
+                });
+                if(devices.length === 0) document.getElementById('list-personal').innerHTML = "<div style='text-align:center; padding:20px; color:#999;'>Belum ada perangkat dipairing.</div>";
+            }, function() {});
+        }
+
+        // --- NEARBY (DISCOVERY) ---
+        function scanNearby() {
+            document.getElementById('load-nearby').style.display = 'block';
+            document.getElementById('list-nearby').innerHTML = "";
+
+            // Fungsi discoverUnpaired (Mencari perangkat yang belum pair)
+            bluetoothSerial.discoverUnpaired(function(devices) {
+                document.getElementById('load-nearby').style.display = 'none';
+                devices.forEach(device => {
+                    renderDevice(device, 'list-nearby', false);
+                });
+                if(devices.length === 0) document.getElementById('list-nearby').innerHTML = "<div style='text-align:center; padding:20px; color:#999;'>Tidak ada perangkat terdeteksi.</div>";
+            }, function(err) {
+                document.getElementById('load-nearby').style.display = 'none';
+                alert("Gagal scan: " + err);
+            });
+        }
+
+        // --- RENDER LIST ---
+        function renderDevice(device, targetId, isPaired) {
+            if(!device.name) return; // Skip yang gak ada namanya
+            
+            let html = `
+            <div class="device-item" onclick="connectTo('${device.address}', '${device.name}')">
+                <div class="device-icon" style="background:${isPaired ? '#008069' : '#666'}">
+                    <i class="fas ${isPaired ? 'fa-user' : 'fa-broadcast-tower'}"></i>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-addr">${device.address}</div>
+                </div>
+                ${isPaired ? '' : '<span class="status-badge">Tap to Connect</span>'}
+            </div>`;
+            document.getElementById(targetId).innerHTML += html;
+        }
+
+        // --- KONEKSI & CHAT ---
+        function connectTo(address, name) {
+            alert("Menghubungkan ke " + name + "...");
+            bluetoothSerial.connectInsecure(address, function() {
+                // Sukses
+                document.getElementById('chat-room').style.display = 'flex';
+                document.getElementById('chat-name').innerText = name;
+                document.getElementById('msg-area').innerHTML = ""; // Bersihkan chat lama
+                tampilkanPesan("Terhubung ke chat!", "me");
+            }, function(err) {
+                alert("Gagal konek: " + err + "\n\nTips: Kalau di Nearby, kadang perlu pairing manual dulu di setting HP.");
+            });
+        }
+
+        function tutupChat() {
+            bluetoothSerial.disconnect();
+            document.getElementById('chat-room').style.display = 'none';
+        }
+
+        function kirimPesan() {
+            let input = document.getElementById('msg-input');
+            let text = input.value;
+            if(!text) return;
+
+            bluetoothSerial.write(text + "\n", function() {
+                tampilkanPesan(text, 'me');
+                input.value = "";
+            }, function() { alert("Gagal kirim, koneksi putus."); });
+        }
+
+        function tampilkanPesan(text, who) {
+            let area = document.getElementById('msg-area');
+            let div = document.createElement('div');
+            div.className = 'msg ' + who;
+            div.innerText = text;
+            area.appendChild(div);
+            area.scrollTop = area.scrollHeight;
+        }
+    </script>
 </body>
 </html>
