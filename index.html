@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WA Bluetooth Offline</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- CSS ALA WHATSAPP --- */
+        :root {
+            --wa-teal: #008069;
+            --wa-dark-teal: #005d4b;
+            --wa-bg: #e5ddd5;
+            --chat-me: #dcf8c6;
+            --chat-other: #ffffff;
+        }
+
+        body { margin: 0; font-family: Helvetica, Arial, sans-serif; background-color: #d1d7db; }
+        
+        /* Container App mirip HP */
+        #app-container {
+            max-width: 480px; margin: 0 auto; background: #fff; height: 100vh; display: flex; flex-direction: column; position: relative;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--wa-teal); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
+        }
+        .header-title { font-weight: bold; font-size: 20px; }
+        .header-icons i { margin-left: 20px; cursor: pointer; }
+
+        /* Layar Chat (Background Pattern) */
+        #chat-area {
+            flex: 1;
+            background-color: var(--wa-bg);
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Pattern WA */
+            background-opacity: 0.1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Gelembung Chat */
+        .message {
+            max-width: 70%;
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 15px;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .message.me {
+            align-self: flex-end;
+            background-color: var(--chat-me);
+            border-top-right-radius: 0;
+        }
+        .message.other {
+            align-self: flex-start;
+            background-color: var(--chat-other);
+            border-top-left-radius: 0;
+        }
+        .msg-time {
+            font-size: 10px; color: #999; float: right; margin-top: 5px; margin-left: 10px;
+        }
+
+        /* Input Area Bawah */
+        footer {
+            padding: 8px; background: #f0f0f0; display: flex; align-items: center;
+        }
+        input[type="text"] {
+            flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; margin: 0 8px;
+        }
+        .btn-round {
+            background: var(--wa-teal); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Modal Koneksi Bluetooth (Overlay) */
+        #bt-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 80%; padding: 20px; border-radius: 5px; text-align: center;
+        }
+        .btn-scan {
+            background: var(--wa-teal); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; font-size: 16px;
+        }
+        .status-badge {
+            background: #ffcc00; font-size: 12px; padding: 2px 8px; border-radius: 10px; color: #333; margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <header>
+        <div class="header-title">WA Bluetooth <span id="conn-status" class="status-badge">Offline</span></div>
+        <div class="header-icons">
+            <i class="fas fa-video"></i>
+            <i class="fas fa-phone"></i>
+            <i class="fas fa-ellipsis-v" onclick="toggleModal()"></i>
+        </div>
+    </header>
+
+    <div id="chat-area">
+        <div class="message other">
+            Bro, ini chat pake Bluetooth ya? Tanpa kuota?
+            <span class="msg-time">10:00</span>
+        </div>
+        <div class="message me">
+            Yoi bro! Hemat kuota, tampilan rasa WA asli wkwk.
+            <span class="msg-time">10:01</span>
+        </div>
+    </div>
+
+    <footer>
+        <i class="fas fa-smile" style="color: #666; font-size: 24px; padding: 5px;"></i>
+        <input type="text" id="msgInput" placeholder="Ketik pesan...">
+        <div class="btn-round" onclick="kirimPesan()">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+    </footer>
+
+    <div id="bt-modal">
+        <div class="modal-content">
+            <h3>Koneksi Bluetooth</h3>
+            <p>Pastikan Bluetooth HP nyala ya.</p>
+            <div id="device-list" style="text-align:left; margin: 15px 0; max-height: 150px; overflow-y:auto; border:1px solid #ddd;">
+                <div style="padding:10px; border-bottom:1px solid #eee;">Menunggu scan...</div>
+            </div>
+            <button class="btn-scan" onclick="scanPerangkat()">Cari Perangkat Sekitar</button>
+            <button onclick="toggleModal()" style="margin-top:10px; background:none; border:none; color:red;">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- LOGIKA JAVASCRIPT ---
+    
+    // 1. Fungsi Tampilan Chat
+    function kirimPesan() {
+        let input = document.getElementById('msgInput');
+        let text = input.value;
+        if(text.trim() === "") return;
+
+        // Tampilkan pesan di layar sendiri (Kanan/Hijau)
+        tambahChatKeLayar(text, 'me');
+        
+        // TODO: Panggil fungsi kirim via Bluetooth disini
+        // bluetoothSerial.write(text); 
+
+        input.value = "";
+    }
+
+    function tambahChatKeLayar(pesan, tipe) {
+        let area = document.getElementById('chat-area');
+        let div = document.createElement('div');
+        div.className = 'message ' + tipe;
+        
+        let waktu = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        div.innerHTML = `${pesan} <span class="msg-time">${waktu}</span>`;
+        
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight; // Auto scroll ke bawah
+    }
+
+    // 2. Fungsi Simulasi Bluetooth (Karena di browser laptop ga ada API Bluetooth Native)
+    function toggleModal() {
+        let modal = document.getElementById('bt-modal');
+        modal.style.display = (modal.style.display === 'none') ? 'flex' : 'none';
+    }
+
+    function scanPerangkat() {
+        let list = document.getElementById('device-list');
+        list.innerHTML = "<div style='padding:10px;'><i>Sedang memindai...</i></div>";
+        
+        // Simulasi Delay Scan
+        setTimeout(() => {
+            list.innerHTML = `
+                <div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick="connectTo('HC-05')">
+                    <strong>HP Xiaomi Bro</strong> <br><small>MAC: 00:11:22:33:44</small>
+                </div>
+                <div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick="connectTo('Galaxy S20')">
+                    <strong>Samsung S23</strong> <br><small>MAC: AA:BB:CC:DD:EE</small>
+                </div>
+            `;
+        }, 1500);
+    }
+
+    function connectTo(namaDevice) {
+        alert("Terhubung ke " + namaDevice + "! Siap chatting.");
+        document.getElementById('conn-status').innerText = "Terhubung: " + namaDevice;
+        document.getElementById('conn-status').style.background = "#25D366"; // Ijo WA
+        document.getElementById('conn-status').style.color = "white";
+        toggleModal();
+    }
+</script>
+
+</body>
+</html>
