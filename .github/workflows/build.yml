@@ -7,20 +7,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Setup Java 17 (Wajib buat Android 12+)
+      # 1. Setup Java 17 (Wajib untuk Android 13+)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 2. Setup Node.js
+      # 2. Setup Node.js 18
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3. Setup Gradle 8.7 (Biar stabil)
+      # 3. Setup Gradle 8.7 (Versi Stabil)
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -30,11 +30,12 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      # 5. Install Plugin & Dependencies
+      # 5. Install Dependencies (Plugin dll)
       - name: Install Dependencies
         run: npm install
 
-      # 6. PASANG PLATFORM ANDROID (Ini yang tadi eror/lupa)
+      # 6. PASANG PLATFORM (Ini KUNCI perbaikannya)
+      # Kita paksa hapus dulu (kalau ada) lalu pasang baru
       - name: Add Android Platform
         run: |
             cordova platform remove android || true
