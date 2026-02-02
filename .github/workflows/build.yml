@@ -35,7 +35,7 @@ jobs:
         run: |
             npm install
             cordova plugin remove cordova-plugin-bluetooth-serial || true
-            cordova plugin add cordova-plugin-bluetooth-classic-serial-port
+            cordova plugin add https://github.com/MaximBelov/cordova-plugin-bluetooth-classic-serial-port.git
 
       # 6. PASANG PLATFORM (Ini KUNCI perbaikannya)
       # Kita paksa hapus dulu (kalau ada) lalu pasang baru
