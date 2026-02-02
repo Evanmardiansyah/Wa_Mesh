@@ -2,21 +2,19 @@
     "name": "com.agan.wabluetooth",
     "displayName": "WA Bluetooth",
     "version": "1.0.0",
-    "description": "Chat Offline",
+    "description": "Chat Offline BLE",
     "main": "index.js",
     "dependencies": {
         "cordova-android": "^13.0.0",
-        "cordova-plugin-bluetooth-classic-serial-port": "git+https://github.com/MaximBelov/cordova-plugin-bluetooth-classic-serial-port.git",
         "cordova-plugin-whitelist": "^1.3.4",
         "cordova-plugin-android-permissions": "^1.1.5",
-        "cordova-plugin-geolocation": "^4.1.0"
+        "cordova-plugin-bluetooth-le": "^6.7.4"
     },
     "cordova": {
         "plugins": {
             "cordova-plugin-whitelist": {},
-            "cordova-plugin-bluetooth-classic-serial-port": {},
             "cordova-plugin-android-permissions": {},
-            "cordova-plugin-geolocation": {}
+            "cordova-plugin-bluetooth-le": {}
         },
         "platforms": [
             "android"
