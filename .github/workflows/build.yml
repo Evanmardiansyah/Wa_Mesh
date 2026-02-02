@@ -30,9 +30,12 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      # 5. Install Dependencies (Plugin dll)
+     #5. Ganti Plugin (Copot yang lama, pasang yang baru)
       - name: Install Dependencies
-        run: npm install
+        run: |
+            npm install
+            cordova plugin remove cordova-plugin-bluetooth-serial || true
+            cordova plugin add cordova-plugin-bluetooth-classic-serial-port
 
       # 6. PASANG PLATFORM (Ini KUNCI perbaikannya)
       # Kita paksa hapus dulu (kalau ada) lalu pasang baru
