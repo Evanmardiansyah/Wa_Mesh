@@ -3,323 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; font-src * data:;">
-    
-    <title>Messenger Mesh</title>
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval';">
+    <title>Mesh BLE</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #2563eb;
-            --bg-app: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --text-sub: #6b7280;
-            --border: #e5e7eb;
-            --nav-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --primary: #3b82f6;
-            --bg-app: #111827;
-            --bg-card: #1f2937;
-            --text-main: #f9fafb;
-            --text-sub: #9ca3af;
-            --border: #374151;
-            --nav-bg: #1f2937;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* --- LAYAR SETUP (ONBOARDING) --- */
-        #setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-card); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        .setup-img { width: 100px; height: 100px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--primary); margin-bottom: 20px; }
-        .setup-input { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 12px; margin-top: 20px; font-size: 16px; text-align: center; background: var(--bg-app); color: var(--text-main); }
-        .setup-input:focus { border-color: var(--primary); outline: none; }
-        .btn-start { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 15px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
-
-        /* HEADER */
-        header { padding: 20px 20px 10px 20px; background: var(--bg-app); display: flex; align-items: center; justify-content: space-between; }
-        .head-title { font-size: 24px; font-weight: 700; }
-        .radar-badge { font-size: 10px; background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .pulse { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: ping 1.5s infinite; }
-        @keyframes ping { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2);opacity:0} }
-
-        /* PAGES */
-        #pages-container { flex: 1; position: relative; }
-        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; display: none; padding-bottom: 100px; }
-        .page.active { display: block; }
-
-        /* PROFILE STYLE */
-        .profile-card { background: var(--bg-card); margin: 20px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border); }
-        .big-avatar { width: 80px; height: 80px; background: #eff6ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin: 0 auto 15px; }
-        .profile-name-box { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px; }
-        .profile-name { font-size: 20px; font-weight: 700; }
-        .edit-btn { background: var(--bg-app); color: var(--primary); padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        body { margin:0; font-family:'Inter',sans-serif; background:#f0f2f5; display:flex; flex-direction:column; height:100vh; }
+        header { background:#2563eb; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+        .radar-box { background:white; margin:10px; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+        .radar-anim { width:10px; height:10px; background:#10b981; border-radius:50%; display:inline-block; animation:blink 1s infinite; margin-right:5px; }
+        @keyframes blink { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
         
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--nav-bg); padding: 15px; border-radius: 20px; display: flex; justify-content: space-around; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; gap: 5px; }
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 20px; }
-
-        /* MODAL EDIT */
-        #edit-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:none; justify-content:center; align-items:center; }
-        .modal-box { background:var(--bg-card); padding:25px; border-radius:20px; width:85%; text-align:center; }
-        .modal-btns { display:flex; gap:10px; margin-top:20px; }
-
-        /* CHAT STYLES */
-        .list-item { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; background: var(--bg-card); }
-        .avatar { width: 45px; height: 45px; background: #ddd; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; color: white; }
+        #device-list { flex:1; overflow-y:auto; padding:10px; }
+        .item { background:white; padding:15px; border-radius:10px; margin-bottom:10px; display:flex; align-items:center; cursor:pointer; border:1px solid #ddd; }
+        .avatar { width:40px; height:40px; background:#e0f2fe; color:#2563eb; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:15px; font-weight:bold; }
         
-        #chat-room { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-app); z-index:100; display:none; flex-direction:column; }
-        #msgs { flex:1; overflow-y:auto; padding:20px; }
-        .chat-input { padding:10px; background:var(--bg-card); display:flex; gap:10px; border-top:1px solid var(--border); }
-        textarea { flex:1; padding:10px; border-radius:20px; border:1px solid var(--border); resize:none; }
+        #chat-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:100; display:none; flex-direction:column; }
+        #msgs { flex:1; overflow-y:auto; padding:15px; background:#f0f2f5; }
+        .bubble { max-width:80%; padding:10px 15px; border-radius:15px; margin-bottom:10px; font-size:14px; word-wrap:break-word; }
+        .me { align-self:flex-end; background:#2563eb; color:white; margin-left:auto; }
+        .other { align-self:flex-start; background:white; border:1px solid #ddd; }
+        .input-area { padding:10px; border-top:1px solid #ddd; display:flex; gap:10px; }
+        input { flex:1; padding:10px; border-radius:20px; border:1px solid #ddd; }
+        button { background:#2563eb; color:white; border:none; padding:10px 20px; border-radius:20px; }
     </style>
 </head>
 <body>
 
-    <div id="setup-screen" style="display: none;">
-        <div class="setup-img"><i class="fas fa-user-astronaut"></i></div>
-        <h2>Selamat Datang!</h2>
-        <p style="color:var(--text-sub);">Buat profil lokalmu untuk mulai menggunakan Messenger Mesh tanpa internet.</p>
-        
-        <input type="text" id="setup-name" class="setup-input" placeholder="Ketik Nama Panggilanmu...">
-        <button class="btn-start" onclick="finishSetup()">MULAI SEKARANG</button>
+    <header>
+        <b>Nusa Mesh KW (BLE)</b>
+        <div style="font-size:12px; opacity:0.8;">v3.0</div>
+    </header>
+
+    <div class="radar-box">
+        <div id="status"><span class="radar-anim"></span> Radar Aktif</div>
+        <div style="font-size:11px; color:gray; margin-top:5px;">Nama Kamu: <b id="my-name">User</b></div>
     </div>
 
-    <div id="app-container" style="display: none; height: 100%; flex-direction: column;">
-        
+    <div id="device-list">
+        <div style="text-align:center; color:gray; padding:20px;">Scanning...</div>
+    </div>
+
+    <div id="chat-screen">
         <header>
-            <div>
-                <div class="head-title">Pesan</div>
-                <div style="font-size:12px; color:gray;" id="header-status">Online</div>
-            </div>
-            <div class="radar-badge"><div class="pulse"></div> Visible</div>
+            <i class="fas fa-arrow-left" onclick="closeChat()"></i>
+            <span id="chat-target">User</span>
+            <div></div>
         </header>
-
-        <div id="pages-container">
-            <div id="page-chat" class="page active">
-                <div id="list-paired"></div>
-                <div id="empty-state" style="text-align:center; padding:50px; color:gray;">
-                    <i class="far fa-comments" style="font-size:50px; margin-bottom:10px;"></i>
-                    <p>Belum ada chat. Cek Radar!</p>
-                </div>
-            </div>
-
-            <div id="page-global" class="page">
-                <div style="padding:20px;">
-                    <button class="btn-start" onclick="forceScan()">SCAN PERANGKAT SEKITAR</button>
-                </div>
-                <div id="list-nearby"></div>
-            </div>
-
-            <div id="page-profile" class="page">
-                <div class="profile-card">
-                    <div class="big-avatar"><i class="fas fa-user"></i></div>
-                    
-                    <div class="profile-name-box">
-                        <span id="display-name" class="profile-name">User</span>
-                        <div class="edit-btn" onclick="openEditModal()"><i class="fas fa-pen"></i> Edit</div>
-                    </div>
-
-                    <div style="font-size:12px; color:gray; margin-bottom:20px;" id="loc-display">
-                        <i class="fas fa-map-marker-alt"></i> Mencari Lokasi...
-                    </div>
-                </div>
-
-                <div class="profile-card" style="text-align:left;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span><i class="fas fa-moon"></i> Dark Mode</span>
-                        <input type="checkbox" id="theme-switch" onchange="toggleTheme()">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bottom-nav">
-            <div class="nav-item active" id="nav-chat" onclick="nav('chat')"><i class="fas fa-comment-alt nav-icon"></i>Chat</div>
-            <div class="nav-item" id="nav-global" onclick="nav('global')"><i class="fas fa-globe nav-icon"></i>Radar</div>
-            <div class="nav-item" id="nav-profile" onclick="nav('profile')"><i class="fas fa-user nav-icon"></i>Profil</div>
-        </div>
-    </div>
-
-    <div id="edit-modal">
-        <div class="modal-box">
-            <h3>Ubah Nama</h3>
-            <input type="text" id="edit-input" class="setup-input" placeholder="Nama Baru">
-            <div class="modal-btns">
-                <button class="btn-start" style="background:#ccc; color:#333;" onclick="closeEditModal()">Batal</button>
-                <button class="btn-start" onclick="saveEditName()">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="chat-room">
-        <div style="padding:15px; background:var(--bg-card); display:flex; align-items:center; border-bottom:1px solid #eee;">
-            <i class="fas fa-arrow-left" onclick="closeChat()" style="font-size:20px; padding:10px;"></i>
-            <b id="chat-title" style="flex:1;">User</b>
-        </div>
         <div id="msgs"></div>
-        <div class="chat-input">
-            <textarea id="txt" rows="1"></textarea>
-            <i class="fas fa-paper-plane" onclick="sendMsg()" style="font-size:24px; color:var(--primary); padding:10px;"></i>
+        <div class="input-area">
+            <input type="text" id="inp" placeholder="Pesan...">
+            <button onclick="send()">Kirim</button>
         </div>
     </div>
 
-    <script type="text/javascript" src="cordova.js"></script>
+    <script src="cordova.js"></script>
     <script>
-        var bt = null;
+        var ble;
+        var MY_UUID = "180F"; // Kita bajak UUID Battery Service biar gampang kedetect
+        var activeAddr = "";
 
         document.addEventListener('deviceready', function() {
-            bt = window.bluetoothClassicSerialPort;
+            ble = window.bluetoothle;
             
-            // 1. CEK STATUS LOGIN (SETUP)
-            checkOnboarding();
+            // Generate Random Name
+            var myName = "User " + Math.floor(Math.random()*999);
+            document.getElementById('my-name').innerText = myName;
 
-            // 2. INIT IZIN & BLUETOOTH
-            initSystem();
+            // 1. INIT
+            ble.initialize(function(status) {
+                if(status.status === "enabled") {
+                    startSystem(myName);
+                }
+            });
+
+            // Izin Lokasi Wajib
+            var p = cordova.plugins.permissions;
+            p.requestPermissions([
+                p.ACCESS_FINE_LOCATION, 
+                p.BLUETOOTH_SCAN, 
+                p.BLUETOOTH_CONNECT,
+                p.BLUETOOTH_ADVERTISE
+            ], function(){}, function(){});
 
         }, false);
 
-        // --- SISTEM ONBOARDING (SETUP AWAL) ---
-        function checkOnboarding() {
-            var savedName = localStorage.getItem('mesh_username');
-            
-            if(!savedName) {
-                // Belum punya nama -> Tampilkan Setup Screen
-                document.getElementById('setup-screen').style.display = 'flex';
-                document.getElementById('app-container').style.display = 'none';
-            } else {
-                // Sudah punya nama -> Masuk App
-                document.getElementById('setup-screen').style.display = 'none';
-                document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('display-name').innerText = savedName;
-                updateLocation();
-            }
+        function startSystem(name) {
+            // 2. JADI PEMANCAR (ADVERTISE)
+            // Biar HP lain bisa lihat kita
+            ble.initializePeripheral({
+                request: true,
+                restoreKey: "mesh_chat"
+            }, function(res) {
+                if(res.status === "enabled") {
+                    ble.addService({
+                        service: MY_UUID,
+                        characteristics: [{
+                            uuid: "2A19", // Bajak Characteristic Level
+                            permissions: { read: true, write: true },
+                            properties: { read: true, write: true, notify: true }
+                        }]
+                    }, function() {
+                        ble.startAdvertising({
+                            services: [MY_UUID],
+                            service: MY_UUID,
+                            name: name
+                        }, function(){ console.log("Advertising..."); }, function(){});
+                    }, function(){});
+                }
+            }, function(){});
+
+            // 3. JADI RADAR (SCAN)
+            // Cari HP lain
+            startScan();
         }
 
-        function finishSetup() {
-            var name = document.getElementById('setup-name').value.trim();
-            if(name.length < 3) return alert("Nama minimal 3 huruf ya!");
-            
-            localStorage.setItem('mesh_username', name);
-            checkOnboarding(); // Refresh
-        }
-
-        // --- FITUR EDIT PROFIL ---
-        function openEditModal() {
-            document.getElementById('edit-modal').style.display = 'flex';
-            document.getElementById('edit-input').value = localStorage.getItem('mesh_username');
-        }
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-        function saveEditName() {
-            var n = document.getElementById('edit-input').value.trim();
-            if(n) {
-                localStorage.setItem('mesh_username', n);
-                document.getElementById('display-name').innerText = n;
-                closeEditModal();
-            }
-        }
-
-        // --- SISTEM LOKASI ---
-        function updateLocation() {
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                var lat = pos.coords.latitude.toFixed(4);
-                var lon = pos.coords.longitude.toFixed(4);
-                
-                // Coba ambil nama kota (Butuh internet dikit)
-                var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-                fetch(url).then(r=>r.json()).then(d=>{
-                    var city = d.address.city || d.address.town || "Lokasi Terdeteksi";
-                    document.getElementById('loc-display').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${city}`;
-                }).catch(e=>{
-                    document.getElementById('loc-display').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${lat}, ${lon}`;
-                });
-            }, function(e){
-                document.getElementById('loc-display').innerHTML = "Lokasi tidak aktif";
+        function startScan() {
+            ble.startScan({ services: [MY_UUID] }, function(res) {
+                if(res.status === "scanResult") {
+                    addToList(res);
+                }
+            }, function(err) {
+                document.getElementById('status').innerText = "Gagal Scan: " + JSON.stringify(err);
             });
         }
 
-        // --- FITUR DASAR LAINNYA ---
-        function initSystem() {
-            var p = cordova.plugins.permissions;
-            var list = ["android.permission.BLUETOOTH_SCAN", "android.permission.BLUETOOTH_CONNECT", "android.permission.ACCESS_FINE_LOCATION"];
-            p.requestPermissions(list, function(s){
-                if(s.hasPermission) {
-                    bt.setDiscoverable(0);
-                    bt.listen(function(){}, function(){});
-                    bt.subscribeRaw(handleData);
-                }
-            }, function(){});
+        var foundDevs = {};
+        function addToList(dev) {
+            if(foundDevs[dev.address]) return;
+            foundDevs[dev.address] = dev;
+
+            var name = dev.name || "Unknown";
+            var html = `<div class="item" onclick="connect('${dev.address}', '${name}')">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div><b>${name}</b><br><span style="font-size:11px; color:gray;">${dev.address}</span></div>
+            </div>`;
+            document.getElementById('device-list').innerHTML += html;
         }
 
-        function nav(p) {
-            document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-            document.getElementById('page-'+p).classList.add('active');
-            document.getElementById('nav-'+p).classList.add('active');
+        function connect(addr, name) {
+            activeAddr = addr;
+            document.getElementById('chat-screen').style.display='flex';
+            document.getElementById('chat-target').innerText = name;
             
-            if(p==='global') forceScan();
+            ble.connect({ address: addr }, function(res) {
+                if(res.status === "connected") {
+                    // Subscribe biar bisa terima pesan
+                    ble.subscribe({
+                        address: addr,
+                        service: MY_UUID,
+                        characteristic: "2A19"
+                    }, function(data) {
+                        if(data.value) {
+                            var msg = atob(data.value); // Decode Base64
+                            addMsg(msg, 'other');
+                        }
+                    }, function(){});
+                }
+            }, function(){ alert("Gagal Konek"); });
         }
 
-        function forceScan() {
-            var el = document.getElementById('list-nearby');
-            el.innerHTML = "Scanning...";
-            bt.discoverUnpaired(function(d){
-                el.innerHTML="";
-                d.forEach(x=>{
-                    if(!x.name)return;
-                    el.innerHTML+=`<div class="list-item" onclick="connect('${x.address}','${x.name}')">
-                        <div class="avatar"><i class="fas fa-mobile"></i></div>
-                        <b>${x.name}</b>
-                    </div>`;
-                });
-            }, function(){ el.innerHTML="Gagal Scan"; });
+        function send() {
+            var txt = document.getElementById('inp').value;
+            if(!txt) return;
+            
+            // Encode ke Base64 (Syarat BLE)
+            var bytes = btoa(txt); 
+            
+            ble.write({
+                address: activeAddr,
+                service: MY_UUID,
+                characteristic: "2A19",
+                value: bytes,
+                type: "noResponse"
+            }, function() {
+                addMsg(txt, 'me');
+                document.getElementById('inp').value="";
+            }, function(e){ alert("Gagal Kirim: "+JSON.stringify(e)); });
         }
 
-        function connect(a,n) {
-            bt.connectInsecure(a, function(){
-                document.getElementById('chat-room').style.display='flex';
-                document.getElementById('chat-title').innerText=n;
-                document.getElementById('msgs').innerHTML="";
-            }, function(e){alert(e);});
-        }
-        
-        function closeChat() { document.getElementById('chat-room').style.display='none'; }
-
-        function sendMsg() {
-            var t=document.getElementById('txt').value;
-            bt.write("TXT:"+t, function(){
-                var d=document.createElement('div'); d.innerText=t; d.style.textAlign='right'; d.style.padding='10px';
-                document.getElementById('msgs').appendChild(d);
-            }, null);
-        }
-        
-        function handleData(b) {
-            var s=String.fromCharCode.apply(null, new Uint8Array(b));
-            if(s.startsWith("TXT:")) {
-                var d=document.createElement('div'); d.innerText=s.substring(4); d.style.padding='10px';
-                document.getElementById('msgs').appendChild(d);
-            }
+        function addMsg(txt, who) {
+            var d = document.createElement('div');
+            d.className = "bubble " + who;
+            d.innerText = txt;
+            document.getElementById('msgs').appendChild(d);
         }
 
-        function toggleTheme() {
-            if(document.body.hasAttribute('data-theme')) {
-                document.body.removeAttribute('data-theme');
-                localStorage.setItem('theme','light');
-            } else {
-                document.body.setAttribute('data-theme','dark');
-                localStorage.setItem('theme','dark');
-            }
+        function closeChat() {
+            document.getElementById('chat-screen').style.display='none';
+            if(activeAddr) ble.disconnect({address: activeAddr});
         }
-        if(localStorage.getItem('theme')==='dark') document.getElementById('theme-switch').checked=true;
     </script>
 </body>
 </html>
