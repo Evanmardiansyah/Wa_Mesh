@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.agan.wabluetooth" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>WA Bluetooth</name>
-    <description>Aplikasi Chat Offline via Bluetooth</description>
+    <description>Chat Offline BLE</description>
     <author email="dev@example.com" href="http://example.com">Developer Keren</author>
     <content src="index.html" />
     
@@ -15,13 +15,5 @@
 
     <platform name="android">
         <allow-intent href="market:*" />
-        
-        <config-file parent="/manifest" target="AndroidManifest.xml">
-            <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
-            <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-            <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-        </config-file>
-    </platform>
+        </platform>
 </widget>
