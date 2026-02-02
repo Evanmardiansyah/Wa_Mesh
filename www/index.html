@@ -5,32 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *; img-src * data: content:;">
     
-    <title>Mesh File Transfer</title>
+    <title>Nusa Mesh Pro</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
         :root { --primary: #008069; --bg-chat: #e5ddd5; --me: #dcf8c6; --other: #fff; }
         * { box-sizing: border-box; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #d1d7db; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
 
         /* HEADER */
         header { background: var(--primary); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .app-name { font-weight: bold; font-size: 20px; letter-spacing: 0.5px; }
-        
+        .app-info { display: flex; flex-direction: column; }
+        .app-name { font-weight: bold; font-size: 18px; }
+        .status-text { font-size: 11px; opacity: 0.9; margin-top: 2px; display: flex; align-items: center; }
+        .dot { width: 8px; height: 8px; background: #0f0; border-radius: 50%; margin-right: 5px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
+
         .tabs { display: flex; background: var(--primary); color: rgba(255,255,255,0.7); }
         .tab { flex: 1; padding: 12px; text-align: center; text-transform: uppercase; font-size: 13px; font-weight: bold; border-bottom: 3px solid transparent; cursor: pointer; }
         .tab.active { color: white; border-bottom: 3px solid white; }
 
-        /* LIST DEVICE */
+        /* LIST VIEW */
         #main-view { flex: 1; position: relative; background: white; }
         .page { display: none; height: 100%; overflow-y: auto; }
         .page.active { display: block; }
         
         .item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; cursor: pointer; transition: 0.2s; }
         .item:active { background: #f5f5f5; }
-        .avatar { width: 50px; height: 50px; background: #ddd; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: white; margin-right: 15px; }
+        .avatar { width: 45px; height: 45px; background: #ddd; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; color: white; margin-right: 15px; }
+        .online-badge { border: 2px solid white; width: 12px; height: 12px; background: #25D366; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
+        
         .info h3 { margin: 0; font-size: 16px; color: #333; }
         .info p { margin: 3px 0 0; font-size: 12px; color: #888; }
+        .badge { font-size: 10px; background: #eee; padding: 3px 6px; border-radius: 4px; margin-left: auto; }
 
         /* CHAT ROOM */
         #chat-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-chat); z-index: 100; display: none; flex-direction: column; }
@@ -42,17 +49,13 @@
         .bubble { max-width: 80%; padding: 6px 10px; margin-bottom: 8px; border-radius: 8px; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); display: inline-block; }
         .bubble.me { align-self: flex-end; background: var(--me); border-top-right-radius: 0; }
         .bubble.other { align-self: flex-start; background: var(--other); border-top-left-radius: 0; }
-        
         .bubble img { max-width: 100%; border-radius: 6px; margin-top: 5px; display: block; }
         
-        /* FILE ATTACHMENT STYLE */
         .file-box { display: flex; align-items: center; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 5px; margin-top: 5px; }
         .file-icon { font-size: 24px; color: #e74c3c; margin-right: 10px; }
         .file-info { font-size: 12px; font-weight: bold; }
         
         .meta { display: flex; justify-content: flex-end; align-items: center; margin-top: 2px; font-size: 10px; color: #999; }
-        .tick { margin-left: 3px; }
-        .tick.blue { color: #34B7F1; }
 
         /* FOOTER */
         .footer { padding: 5px 8px; background: #f0f0f0; display: flex; align-items: flex-end; min-height: 50px; gap: 8px; }
@@ -60,27 +63,30 @@
         .btn { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #555; cursor: pointer; font-size: 18px; }
         .btn-send { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* PROGRESS BAR TRANSFER */
-        #progress-modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; }
+        /* PROGRESS BAR */
+        #progress-modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; }
         .prog-bar { width: 80%; height: 10px; background: #555; border-radius: 5px; margin-top: 15px; overflow: hidden; }
         .prog-fill { height: 100%; background: #25D366; width: 0%; transition: width 0.2s; }
         
-        /* MENU ATTACHMENT */
-        #attach-menu { position: absolute; bottom: 60px; left: 10px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; z-index: 101; width: 150px; }
-        .attach-item { padding: 12px 15px; display: flex; align-items: center; cursor: pointer; border-bottom: 1px solid #eee; }
-        .attach-item:hover { background: #f5f5f5; }
-        .attach-item i { width: 25px; margin-right: 10px; }
+        /* ATTACH MENU */
+        #attach-menu { position: absolute; bottom: 65px; left: 10px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: none; flex-direction: column; width: 160px; z-index: 101; }
+        .attach-item { padding: 12px 15px; display: flex; align-items: center; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        .attach-item i { width: 30px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="app-name">WA Bluetooth</div>
-        <i class="fas fa-ellipsis-v"></i>
+        <div class="app-info">
+            <div class="app-name">Nusa Mesh Pro</div>
+            <div class="status-text"><div class="dot"></div> Online (Visible)</div>
+        </div>
+        <i class="fas fa-sync" onclick="forceScan()" style="cursor:pointer;"></i>
     </header>
+
     <div class="tabs">
         <div class="tab active" onclick="nav('personal')" id="t-personal">Chat</div>
-        <div class="tab" onclick="nav('nearby')" id="t-nearby">Cari Teman</div>
+        <div class="tab" onclick="nav('nearby')" id="t-nearby">Radar</div>
     </div>
 
     <div id="main-view">
@@ -89,7 +95,9 @@
             <div id="list-personal"></div>
         </div>
         <div id="p-nearby" class="page">
-            <button onclick="scan()" style="width:90%; margin:15px 5%; padding:12px; background:var(--primary); color:white; border:none; border-radius:5px; font-weight:bold;">SCAN DEVICE</button>
+            <div style="background:#e3f2fd; padding:10px; font-size:12px; color:#0d47a1; text-align:center;">
+                <i class="fas fa-satellite-dish"></i> Radar aktif. Perangkat sekitar akan muncul di sini.
+            </div>
             <div id="list-nearby"></div>
         </div>
     </div>
@@ -100,19 +108,15 @@
             <div class="avatar" style="width:35px; height:35px; font-size:16px; margin-right:10px;"><i class="fas fa-user"></i></div>
             <div style="flex:1;">
                 <div style="font-weight:bold; font-size:16px;" id="chat-name">User</div>
-                <div style="font-size:11px; opacity:0.8;" id="chat-status">Tap untuk info</div>
+                <div style="font-size:11px; opacity:0.8;">Connected via Bluetooth</div>
             </div>
         </div>
         
-        <div id="msgs">
-            <div style="text-align:center; margin:10px; font-size:11px; color:#666; background:#fff8c4; padding:5px; border-radius:5px; display:inline-block; align-self:center;">
-                <i class="fas fa-bolt"></i> Transfer File & Foto Ready (Beta)
-            </div>
-        </div>
+        <div id="msgs"></div>
         
         <div id="attach-menu">
-            <div class="attach-item" onclick="pickImage()"><i class="fas fa-image" style="color:#d32f2f;"></i> Galeri</div>
-            <div class="attach-item" onclick="pickFile()"><i class="fas fa-file-alt" style="color:#5e35b1;"></i> Dokumen</div>
+            <div class="attach-item" onclick="pickImage()"><i class="fas fa-image" style="color:#d32f2f;"></i> Kirim Foto</div>
+            <div class="attach-item" onclick="pickFile()"><i class="fas fa-file-alt" style="color:#5e35b1;"></i> Kirim File</div>
         </div>
 
         <div class="footer">
@@ -123,10 +127,10 @@
     </div>
 
     <div id="progress-modal">
-        <h3 id="prog-title">Mengirim File...</h3>
+        <h3 id="prog-title">Mengirim...</h3>
         <div style="font-size:20px; font-weight:bold;" id="prog-text">0%</div>
         <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-        <div style="margin-top:10px; font-size:12px; color:#ccc;">Jangan tutup aplikasi!</div>
+        <div style="margin-top:10px; font-size:12px; color:#ccc;">Jangan keluar aplikasi!</div>
     </div>
 
     <input type="file" id="inp-img" accept="image/*" style="display:none" onchange="procImg(this)">
@@ -135,50 +139,140 @@
     <script type="text/javascript" src="cordova.js"></script>
     <script>
         var bt = null;
-        var CHUNK_SIZE = 900; // Ukuran potong paket (Bytes) agar aman
+        var CHUNK_SIZE = 900; 
         var incomingFile = { meta: null, data: [], received: 0 };
         var isSending = false;
 
         document.addEventListener('deviceready', function() {
             bt = window.bluetoothClassicSerialPort;
-            initPerms();
-            startServer();
             
-            // Auto expand textarea
+            // 1. IZIN MANUAL BRUTAL (Resep Nusa Mesh)
+            requestPermsManual();
+
+            // Auto-expand textarea
             document.getElementById('txt').addEventListener('input', function(){
                 this.style.height='auto'; this.style.height=(this.scrollHeight)+'px';
                 if(this.value=='') this.style.height='40px';
             });
-            
-            loadPaired();
         }, false);
 
-        // --- 1. CORE & PERMISSIONS ---
-        function initPerms(){
+        // --- CORE KONEKSI (RESEP FIX LIST KOSONG) ---
+        function requestPermsManual() {
             var p = cordova.plugins.permissions;
-            var list = [p.BLUETOOTH_SCAN, p.BLUETOOTH_CONNECT, p.BLUETOOTH_ADVERTISE, p.ACCESS_FINE_LOCATION, p.READ_EXTERNAL_STORAGE];
-            p.checkPermission(list, function(s){
-                if(!s.hasPermission) p.requestPermissions(list, function(){}, function(){});
-            });
+            var perms = [
+                "android.permission.BLUETOOTH_SCAN", 
+                "android.permission.BLUETOOTH_CONNECT", 
+                "android.permission.BLUETOOTH_ADVERTISE", 
+                "android.permission.ACCESS_FINE_LOCATION",
+                "android.permission.READ_EXTERNAL_STORAGE" // Tambah Storage buat file
+            ];
+
+            p.requestPermissions(perms, function(status) {
+                if(status.hasPermission) {
+                    startApp();
+                } else {
+                    alert("Wajib Izinkan Semua ya Bre! Biar bisa scan & kirim file.");
+                    p.requestPermissions(perms, startApp, function(){});
+                }
+            }, function(){});
         }
 
-        function startServer(){
-            bt.listen(function(){}, function(e){ console.error(e); });
+        function startApp() {
+            // 2. AUTO VISIBLE (Resep Nusa Mesh)
+            bt.setDiscoverable(300);
+
+            // 3. START LISTENING
+            bt.listen(function(){ console.log("Server OK"); }, function(e){});
+            
+            // 4. DATA HANDLER (Chunking Logic)
             bt.subscribeRaw(function(data){
-                // Kita pakai subscribeRaw (ArrayBuffer) untuk handle file binary
                 handleRawData(data);
             });
+
+            // 5. AUTO SCAN
+            loadLists();
         }
 
-        // --- 2. DATA HANDLER (OTAK PENGOLAH DATA) ---
-        var bufferString = "";
-        
+        function forceScan() {
+            bt.setDiscoverable(300); // Perbarui visibility
+            loadLists();
+        }
+
+        function loadLists() {
+            var elNearby = document.getElementById('list-nearby');
+            elNearby.innerHTML = "<div style='padding:20px; text-align:center; color:#888;'>Scanning...</div>";
+            
+            var allDevs = [];
+
+            // Get Paired
+            bt.list(function(paired) {
+                renderPaired(paired);
+                paired.forEach(d => { d.isPaired=true; allDevs.push(d); });
+
+                // Get Unpaired
+                bt.discoverUnpaired(function(unpaired) {
+                    unpaired.forEach(d => {
+                        if(!allDevs.find(x => x.address == d.address)) {
+                            d.isPaired = false;
+                            allDevs.push(d);
+                        }
+                    });
+                    renderNearby(allDevs);
+                }, function(e){
+                    renderNearby(allDevs); // Tetap render paired kalau scan gagal
+                });
+            }, function(){});
+        }
+
+        function renderPaired(list) {
+            var el = document.getElementById('list-personal');
+            el.innerHTML = "";
+            if(list.length>0) document.getElementById('empty-msg').style.display='none';
+            
+            list.forEach(d => {
+                el.innerHTML += `
+                <div class="item" onclick="connect('${d.address}', '${d.name}')">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="info"><h3>${d.name}</h3><p>Tersimpan</p></div>
+                </div>`;
+            });
+        }
+
+        function renderNearby(list) {
+            var el = document.getElementById('list-nearby');
+            el.innerHTML = "";
+            list.forEach(d => {
+                if(!d.name) return;
+                var badge = d.isPaired ? "Saved" : "New";
+                var color = d.isPaired ? "#25D366" : "#ddd";
+                el.innerHTML += `
+                <div class="item" onclick="connect('${d.address}', '${d.name}')">
+                    <div class="avatar" style="position:relative;">
+                        <i class="fas fa-mobile-alt"></i>
+                        <div class="online-badge" style="background:${color}"></div>
+                    </div>
+                    <div class="info"><h3>${d.name}</h3><p>${d.address}</p></div>
+                    <div class="badge">${badge}</div>
+                </div>`;
+            });
+        }
+
+        function connect(addr, name) {
+            showProgress("Menghubungkan...", 100);
+            bt.connectInsecure(addr, function() {
+                hideProgress();
+                openChat(name);
+            }, function(e) {
+                hideProgress();
+                alert("Gagal konek: " + e);
+            });
+        }
+
+        // --- CORE PENGOLAH DATA (FILE TRANSFER) ---
         function handleRawData(buffer) {
-            // Convert ArrayBuffer ke String untuk cek header
             var chunk = String.fromCharCode.apply(null, new Uint8Array(buffer));
             
-            // Cek apakah ini HEADER file baru?
-            // Format: "HEAD:TIPE:NAMA:SIZE"
+            // Header Check
             if(chunk.startsWith("HEAD:")) {
                 var parts = chunk.split(":");
                 incomingFile.meta = { type: parts[1], name: parts[2], size: parseInt(parts[3]) };
@@ -188,231 +282,155 @@
                 return;
             }
 
-            // Jika sedang menerima file
+            // Receiving Data
             if(incomingFile.meta) {
-                // Simpan chunk
-                var u8 = new Uint8Array(buffer);
-                // Convert kembali ke string base64 yang aman
-                // Catatan: Ini simplifikasi. Idealnya handle binary murni.
-                // Disini kita asumsi pengirim mengirim Base64 string yang di-chunk
                 incomingFile.data.push(chunk);
                 incomingFile.received += chunk.length;
-                
                 var pct = Math.floor((incomingFile.received / incomingFile.meta.size) * 100);
                 updateProgress(pct);
 
-                // Cek footer "END"
                 if(chunk.endsWith("END")) {
-                    // Selesai!
-                    var fullStr = incomingFile.data.join("").replace("END", ""); // Gabung & Hapus footer
-                    renderIncomingFile(incomingFile.meta, fullStr);
-                    incomingFile.meta = null; // Reset
+                    var fullStr = incomingFile.data.join("").replace("END", "");
+                    renderIncoming(incomingFile.meta, fullStr);
+                    incomingFile.meta = null;
                     hideProgress();
                 }
                 return;
             }
 
-            // Jika pesan teks biasa (TXT:Isi)
+            // Text Msg
             if(chunk.startsWith("TXT:")) {
-                var txt = chunk.substring(4);
-                addBubble(txt, "other", "text");
+                addBubble(chunk.substring(4), 'other', 'text');
             }
         }
 
-        // --- 3. SENDING LOGIC (SISTEM KIRIM POTONGAN) ---
         function sendLargeData(type, name, base64Str) {
-            if(isSending) return alert("Tunggu pengiriman sebelumnya selesai!");
+            if(isSending) return alert("Antrian penuh!");
             isSending = true;
-
             var size = base64Str.length;
-            // Kirim Header dulu
-            // HEAD:IMG:foto.jpg:10240
             var header = "HEAD:" + type + ":" + name + ":" + size;
             
             showProgress("Mengirim...", 0);
             
             bt.write(header, function(){
-                // Mulai potong-potong
                 var offset = 0;
-                
-                function sendNextChunk() {
+                function sendChunk() {
                     if(offset >= size) {
-                        // Kirim Penutup
                         bt.write("END", function(){
                             isSending = false;
                             hideProgress();
-                            // Tampilkan di chat sendiri
-                            if(type === 'IMG') addBubble(base64Str, 'me', 'img');
+                            if(type==='IMG') addBubble(base64Str, 'me', 'img');
                             else addBubble(name, 'me', 'file');
                         }, null);
                         return;
                     }
-
                     var chunk = base64Str.substring(offset, offset + CHUNK_SIZE);
-                    bt.write(chunk, function() {
+                    bt.write(chunk, function(){
                         offset += CHUNK_SIZE;
-                        var pct = Math.floor((offset / size) * 100);
-                        updateProgress(pct);
-                        // Delay dikit biar gak banjir (Flow Control manual)
-                        setTimeout(sendNextChunk, 20); 
-                    }, function(e){
-                        isSending = false;
-                        hideProgress();
-                        alert("Gagal kirim: " + e);
-                    });
+                        updateProgress(Math.floor((offset/size)*100));
+                        setTimeout(sendChunk, 20); // Delay Stabilizer
+                    }, function(){ isSending=false; hideProgress(); alert("Fail"); });
                 }
-                
-                sendNextChunk(); // Start loop
-                
-            }, function(e){ isSending = false; alert("Gagal kirim header"); });
+                sendChunk();
+            }, function(){ isSending=false; alert("Fail Head"); });
         }
 
-        // --- 4. FITUR FILE & GAMBAR ---
-        function toggleAttach() {
+        // --- UI & UTILS ---
+        function openChat(name) {
+            document.getElementById('chat-view').style.display = 'flex';
+            document.getElementById('chat-name').innerText = name;
+            document.getElementById('msgs').innerHTML = "";
+        }
+        function closeChat() {
+            bt.disconnect();
+            document.getElementById('chat-view').style.display = 'none';
+        }
+        function sendText() {
+            var t = document.getElementById('txt').value.trim();
+            if(!t) return;
+            bt.write("TXT:"+t, function(){
+                addBubble(t, 'me', 'text');
+                document.getElementById('txt').value="";
+            }, null);
+        }
+        function addBubble(content, who, type) {
+            var div = document.createElement('div');
+            div.className = "bubble " + who;
+            var time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            var meta = `<div class="meta">${time}</div>`;
+            
+            if(type==='text') div.innerHTML = content + meta;
+            else if(type==='img') div.innerHTML = `<img src="data:image/jpeg;base64,${content}">` + meta;
+            else if(type==='file') div.innerHTML = `<div class="file-box"><i class="fas fa-file file-icon"></i><div class="file-info">${content}</div></div>` + meta;
+            
+            document.getElementById('msgs').appendChild(div);
+            document.getElementById('msgs').scrollTop = 99999;
+        }
+
+        // --- ATTACHMENT LOGIC ---
+        function toggleAttach() { 
             var m = document.getElementById('attach-menu');
-            m.style.display = (m.style.display==='flex') ? 'none' : 'flex';
+            m.style.display = (m.style.display==='flex') ? 'none' : 'flex'; 
         }
-
         function pickImage() { document.getElementById('inp-img').click(); toggleAttach(); }
         function pickFile() { document.getElementById('inp-file').click(); toggleAttach(); }
-
+        
         function procImg(inp) {
             if(inp.files[0]) {
                 var f = inp.files[0];
                 var r = new FileReader();
                 r.onload = function(e) {
-                    // Resize dulu biar gak kegedean (Max 800px)
-                    resizeAndSend(e.target.result, f.name); 
+                    var img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        var c = document.createElement('canvas');
+                        var ctx = c.getContext('2d');
+                        var s = 600/img.width;
+                        c.width=600; c.height=img.height*s;
+                        ctx.drawImage(img,0,0,c.width,c.height);
+                        var d = c.toDataURL('image/jpeg', 0.7).split(',')[1];
+                        sendLargeData("IMG", f.name, d);
+                    }
                 };
                 r.readAsDataURL(f);
             }
         }
-
+        
         function procFile(inp) {
             if(inp.files[0]) {
                 var f = inp.files[0];
-                // Limit size 500KB biar gak nunggu sejam
-                if(f.size > 500 * 1024) return alert("File terlalu besar! Max 500KB untuk Bluetooth.");
-                
+                if(f.size > 500*1024) return alert("Max 500KB!");
                 var r = new FileReader();
                 r.onload = function(e) {
-                    var b64 = e.target.result.split(",")[1]; // Ambil raw base64
-                    sendLargeData("FILE", f.name, b64);
+                    sendLargeData("FILE", f.name, e.target.result.split(',')[1]);
                 };
                 r.readAsDataURL(f);
             }
         }
-
-        function resizeAndSend(base64Src, name) {
-            var img = new Image();
-            img.src = base64Src;
-            img.onload = function() {
-                var cvs = document.createElement('canvas');
-                var ctx = cvs.getContext('2d');
-                var scale = 600 / img.width; // Resize ke lebar 600px
-                cvs.width = 600;
-                cvs.height = img.height * scale;
-                ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
-                var newData = cvs.toDataURL('image/jpeg', 0.7); // Kompres 70%
-                
-                // Hapus prefix "data:image/jpeg;base64,"
-                var raw = newData.split(",")[1];
-                sendLargeData("IMG", name, raw);
-            }
-        }
-
-        function sendText() {
-            var t = document.getElementById('txt').value.trim();
-            if(!t) return;
-            bt.write("TXT:" + t, function(){
-                addBubble(t, "me", "text");
-                document.getElementById('txt').value="";
-            }, null);
-        }
-
-        // --- 5. UI RENDERER ---
-        function addBubble(content, who, type) {
-            var div = document.createElement('div');
-            div.className = "bubble " + who;
-            var time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            var meta = `<div class="meta">${time} <i class="fas fa-check tick"></i></div>`;
-
-            if(type === 'text') div.innerHTML = content + meta;
-            else if(type === 'img') div.innerHTML = `<img src="data:image/jpeg;base64,${content}">` + meta;
-            else if(type === 'file') div.innerHTML = `<div class="file-box"><i class="fas fa-file file-icon"></i><div class="file-info">${content}</div></div>` + meta;
-
-            document.getElementById('msgs').appendChild(div);
-            document.getElementById('msgs').scrollTop = 99999;
-        }
-
-        function renderIncomingFile(meta, dataStr) {
-            if(meta.type === 'IMG') addBubble(dataStr, 'other', 'img');
+        
+        function renderIncoming(meta, data) {
+            if(meta.type==='IMG') addBubble(data, 'other', 'img');
             else addBubble(meta.name, 'other', 'file');
         }
 
-        // Progress Modal
-        function showProgress(title, pct) {
+        function showProgress(t, p) { 
             document.getElementById('progress-modal').style.display='flex';
-            document.getElementById('prog-title').innerText = title;
-            updateProgress(pct);
+            document.getElementById('prog-title').innerText=t;
+            updateProgress(p);
         }
-        function updateProgress(pct) {
-            if(pct > 100) pct = 100;
-            document.getElementById('prog-text').innerText = pct + "%";
-            document.getElementById('prog-fill').style.width = pct + "%";
+        function updateProgress(p) {
+            if(p>100)p=100;
+            document.getElementById('prog-text').innerText=p+"%";
+            document.getElementById('prog-fill').style.width=p+"%";
         }
         function hideProgress() { document.getElementById('progress-modal').style.display='none'; }
-
-        // Navigation
+        
         function nav(p) {
-            document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
             document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
             document.getElementById('t-'+p).classList.add('active');
             document.getElementById('p-'+p).classList.add('active');
-            if(p==='personal') loadPaired();
-        }
-
-        function loadPaired() {
-            bt.list(function(d){
-                var el = document.getElementById('list-personal');
-                el.innerHTML = "";
-                if(d.length > 0) document.getElementById('empty-msg').style.display='none';
-                d.forEach(dev => {
-                    el.innerHTML += `<div class="item" onclick="openChat('${dev.address}', '${dev.name}')"><div class="avatar"><i class="fas fa-user"></i></div><div class="info"><h3>${dev.name}</h3><p>${dev.address}</p></div></div>`;
-                });
-            }, null);
-        }
-
-        function scan() {
-            document.getElementById('list-nearby').innerHTML = "Scanning...";
-            bt.discoverUnpaired(function(d){
-                var el = document.getElementById('list-nearby');
-                el.innerHTML = "";
-                d.forEach(dev => {
-                    el.innerHTML += `<div class="item" onclick="openChat('${dev.address}', '${dev.name}')"><div class="avatar"><i class="fas fa-search"></i></div><div class="info"><h3>${dev.name}</h3><p>${dev.address}</p></div></div>`;
-                });
-            }, function(e){ alert("Error: "+e); });
-        }
-
-        function openChat(addr, name) {
-            document.getElementById('chat-view').style.display = 'flex';
-            document.getElementById('chat-name').innerText = name;
-            document.getElementById('msgs').innerHTML = ""; // Clear
-            
-            showProgress("Menghubungkan...", 100);
-            bt.connectInsecure(addr, function(){
-                hideProgress();
-                document.getElementById('chat-status').innerText = "Online";
-            }, function(e){
-                hideProgress();
-                alert("Gagal konek: "+e);
-                closeChat();
-            });
-        }
-
-        function closeChat() {
-            bt.disconnect();
-            document.getElementById('chat-view').style.display = 'none';
+            if(p==='nearby') loadLists();
         }
     </script>
 </body>
