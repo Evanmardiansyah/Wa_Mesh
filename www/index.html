@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *; img-src * data: content:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *; img-src * data: content: https://*.openstreetmap.org;">
     
     <title>Messenger Mesh</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- THEME VARIABLES (LIGHT/DARK) --- */
+        /* --- THEME VARIABLES --- */
         :root {
-            --primary: #2563eb; /* Biru Nusa Mesh */
+            --primary: #2563eb;
             --bg-app: #f8f9fa;
             --bg-card: #ffffff;
             --text-main: #1f2937;
             --text-sub: #6b7280;
             --border: #e5e7eb;
             --nav-bg: #ffffff;
-            --nav-shadow: 0 10px 25px rgba(0,0,0,0.1);
             --bubble-me: #2563eb;
             --text-me: #ffffff;
             --bubble-other: #f3f4f6;
@@ -34,7 +33,6 @@
             --text-sub: #9ca3af;
             --border: #374151;
             --nav-bg: #1f2937;
-            --nav-shadow: 0 10px 25px rgba(0,0,0,0.5);
             --bubble-me: #2563eb;
             --text-me: #ffffff;
             --bubble-other: #374151;
@@ -42,9 +40,9 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s, color 0.3s; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-app); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- HEADER --- */
+        /* HEADER */
         header { padding: 20px 20px 10px 20px; background: var(--bg-app); display: flex; align-items: center; justify-content: space-between; z-index: 10; }
         .head-title { font-size: 24px; font-weight: 700; color: var(--text-main); }
         .head-sub { font-size: 12px; color: var(--text-sub); }
@@ -52,47 +50,43 @@
         .pulse { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: ping 1.5s infinite; }
         @keyframes ping { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2);opacity:0} }
 
-        /* --- PAGES --- */
+        /* PAGES */
         #pages-container { flex: 1; position: relative; overflow: hidden; }
-        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; display: none; padding-bottom: 100px; /* Space for nav */ }
+        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; display: none; padding-bottom: 100px; }
         .page.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
 
-        /* --- EMPTY STATE (NUSA MESH STYLE) --- */
+        /* LIST & EMPTY STATE */
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80%; text-align: center; padding: 20px; }
-        .empty-icon { width: 80px; height: 80px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text-sub); box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-        .empty-desc { font-size: 14px; color: var(--text-sub); max-width: 250px; line-height: 1.5; margin-bottom: 20px; }
-        .btn-blue { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        .btn-blue:active { transform: scale(0.98); }
+        .empty-icon { width: 80px; height: 80px; background: var(--bg-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text-sub); margin-bottom: 20px; }
+        .btn-blue { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
 
-        /* --- LIST ITEMS --- */
-        .list-item { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); cursor: pointer; transition: 0.2s; }
-        .list-item:active { background: var(--bg-app); }
-        .avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #60a5fa, #2563eb); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: bold; margin-right: 15px; position: relative; }
+        .list-item { padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); cursor: pointer; }
+        .avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #60a5fa, #2563eb); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-right: 15px; position: relative; }
         .online-dot { width: 12px; height: 12px; background: #10b981; border: 2px solid var(--bg-card); border-radius: 50%; position: absolute; bottom: 0; right: 0; }
         .item-info { flex: 1; }
-        .item-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+        .item-name { font-weight: 600; font-size: 16px; }
         .item-sub { font-size: 13px; color: var(--text-sub); }
 
-        /* --- BOTTOM NAV (FLOATING) --- */
-        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--nav-bg); padding: 15px; border-radius: 20px; display: flex; justify-content: space-around; align-items: center; box-shadow: var(--nav-shadow); z-index: 50; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; font-weight: 600; gap: 5px; cursor: pointer; transition: 0.2s; }
-        .nav-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s; }
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--nav-bg); padding: 15px; border-radius: 20px; display: flex; justify-content: space-around; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; font-weight: 600; gap: 5px; cursor: pointer; }
+        .nav-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .nav-item.active { color: var(--primary); }
-        .nav-item.active .nav-icon { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+        .nav-item.active .nav-icon { background: var(--primary); color: white; }
 
-        /* --- PROFILE PAGE --- */
-        .profile-card { background: var(--bg-card); margin: 20px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid var(--border); }
+        /* PROFILE SECTION */
+        .profile-card { background: var(--bg-card); margin: 20px; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border); position: relative; }
         .big-avatar { width: 80px; height: 80px; background: #e0f2fe; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px; }
-        .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 5px; word-break: break-all;}
-        .profile-addr { font-size: 12px; color: var(--text-sub); background: var(--bg-app); padding: 5px 10px; border-radius: 10px; display: inline-block; margin-bottom: 20px; }
+        
+        .profile-name-box { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 5px; }
+        .profile-name { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .edit-icon { color: var(--primary); cursor: pointer; font-size: 14px; padding: 5px; }
+        
+        .profile-addr { font-size: 12px; color: var(--text-sub); background: var(--bg-app); padding: 6px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
         
         .menu-list { margin: 20px; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
-        .menu-item { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); color: var(--text-main); font-weight: 500; }
-        .menu-item:last-child { border-bottom: none; }
-        
-        /* Toggle Switch */
+        .menu-item { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); font-weight: 500; }
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -100,33 +94,23 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* --- CHAT ROOM --- */
+        /* MODAL EDIT NAMA */
+        #edit-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:none; justify-content:center; align-items:center; }
+        .modal-box { background:var(--bg-card); padding:25px; border-radius:20px; width:80%; text-align:center; }
+        .modal-input { width:100%; padding:10px; border:1px solid var(--border); border-radius:10px; margin:15px 0; font-size:16px; background:var(--bg-app); color:var(--text-main); }
+        .modal-btns { display:flex; gap:10px; justify-content:center; }
+
+        /* CHAT ROOM */
         #chat-room { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-app); z-index: 100; display: none; flex-direction: column; }
-        .chat-header { background: var(--bg-card); padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .chat-header { background: var(--bg-card); padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        
-        .bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 14px; position: relative; word-wrap: break-word; }
         .bubble.me { align-self: flex-end; background: var(--bubble-me); color: var(--text-me); border-bottom-right-radius: 2px; }
         .bubble.other { align-self: flex-start; background: var(--bubble-other); color: var(--text-other); border-bottom-left-radius: 2px; }
-        .bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
-        
         .chat-input-bar { background: var(--bg-card); padding: 10px 15px; display: flex; align-items: flex-end; gap: 10px; border-top: 1px solid var(--border); }
-        textarea { flex: 1; background: var(--bg-app); border: none; padding: 12px 15px; border-radius: 20px; font-family: inherit; resize: none; max-height: 100px; color: var(--text-main); font-size: 15px; }
-        textarea:focus { outline: 2px solid var(--primary); }
-        
+        textarea { flex: 1; background: var(--bg-app); border: none; padding: 12px 15px; border-radius: 20px; resize: none; max-height: 100px; color: var(--text-main); font-size: 15px; }
         .action-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--text-sub); cursor: pointer; font-size: 20px; }
         .send-btn { background: var(--primary); color: white; }
-
-        /* ATTACHMENT MENU */
-        #attach-sheet { position: absolute; bottom: 80px; left: 20px; background: var(--bg-card); border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: none; flex-direction: column; width: 200px; overflow: hidden; border: 1px solid var(--border); z-index: 101;}
-        .sheet-item { padding: 15px; display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 14px; border-bottom: 1px solid var(--border); }
-        .sheet-item:active { background: var(--bg-app); }
-
-        /* LOADING */
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; }
-        .loader-box { background: var(--bg-card); padding: 25px; border-radius: 20px; text-align: center; width: 80%; }
-        .progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -134,23 +118,18 @@
     <header id="main-header">
         <div>
             <div class="head-title">Pesan</div>
-            <div class="head-sub">0 percakapan • 1 online</div>
+            <div class="head-sub" id="header-status">Siap Menghubungkan</div>
         </div>
-        <div class="radar-badge">
-            <div class="pulse"></div> Visible
-        </div>
+        <div class="radar-badge"><div class="pulse"></div> Visible</div>
     </header>
 
     <div id="pages-container">
-        
         <div id="page-chat" class="page active">
             <div id="empty-state-chat" class="empty-state">
                 <div class="empty-icon"><i class="far fa-comment-dots"></i></div>
                 <div class="empty-title">Belum Ada Percakapan</div>
-                <div class="empty-desc">Mulai chat dengan teman di sekitar untuk melihat riwayat percakapan di sini.</div>
-                <button class="btn-blue" onclick="nav('global')">
-                    <i class="fas fa-sync-alt"></i> Muat Ulang
-                </button>
+                <div class="empty-desc">Scan teman di sekitar untuk memulai chat offline.</div>
+                <button class="btn-blue" onclick="nav('global')"><i class="fas fa-search-location"></i> Cari Teman</button>
             </div>
             <div id="list-paired"></div>
         </div>
@@ -160,8 +139,8 @@
                 <div style="background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
                     <i class="fas fa-satellite-dish" style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"></i>
                     <h3 style="margin:0;">Radar Mesh</h3>
-                    <p style="color:var(--text-sub); font-size:13px;">Mencari perangkat Messenger Mesh di sekitar...</p>
-                    <button class="btn-blue" onclick="forceScan()" style="margin-top:10px; width:100%; justify-content:center;">SCAN SEKARANG</button>
+                    <p style="color:var(--text-sub); font-size:13px;">Mencari perangkat di sekitar...</p>
+                    <button class="btn-blue" onclick="forceScan()" style="margin-top:10px; width:100%; justify-content:center;">SCAN ULANG</button>
                 </div>
             </div>
             <div id="list-nearby"></div>
@@ -170,9 +149,17 @@
         <div id="page-profile" class="page">
             <div class="profile-card">
                 <div class="big-avatar"><i class="fas fa-user"></i></div>
-                <div class="profile-name" id="my-dev-name">Unknown</div>
-                <div class="profile-addr" id="my-dev-addr">00:00:00:00:00</div>
-                <div style="color: #10b981; font-weight: 600; font-size: 14px;">Status Profil Lengkap ✓</div>
+                
+                <div class="profile-name-box">
+                    <div class="profile-name" id="display-name">User Mesh</div>
+                    <i class="fas fa-pen edit-icon" onclick="openEditName()"></i>
+                </div>
+
+                <div class="profile-addr" id="location-badge" onclick="refreshLocation()">
+                    <i class="fas fa-map-marker-alt"></i> <span id="loc-text">Mendeteksi Lokasi...</span>
+                </div>
+                
+                <div style="color: #10b981; font-weight: 600; font-size: 14px;">Akun Lokal Aktif ✓</div>
             </div>
 
             <div class="menu-list">
@@ -183,13 +170,21 @@
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="menu-item">
-                    <span><i class="fas fa-shield-alt" style="margin-right:10px; color:var(--text-sub);"></i> Izin Aplikasi</span>
+                <div class="menu-item" onclick="refreshLocation()">
+                    <span><i class="fas fa-sync" style="margin-right:10px; color:var(--text-sub);"></i> Update Lokasi</span>
                     <i class="fas fa-chevron-right" style="color:var(--text-sub); font-size:12px;"></i>
                 </div>
-                <div class="menu-item">
-                    <span><i class="fas fa-info-circle" style="margin-right:10px; color:var(--text-sub);"></i> Versi 2.0 (Mesh)</span>
-                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal">
+        <div class="modal-box">
+            <h3>Ganti Nama</h3>
+            <input type="text" id="new-name-input" class="modal-input" placeholder="Masukkan nama baru">
+            <div class="modal-btns">
+                <button class="btn-blue" style="background:#ccc; color:#333;" onclick="closeEditName()">Batal</button>
+                <button class="btn-blue" onclick="saveName()">Simpan</button>
             </div>
         </div>
     </div>
@@ -212,84 +207,98 @@
     <div id="chat-room">
         <div class="chat-header">
             <i class="fas fa-arrow-left" style="font-size: 20px; color: var(--text-main); cursor: pointer;" onclick="closeChat()"></i>
-            <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;"><i class="fas fa-user"></i></div>
             <div style="flex:1;">
                 <div style="font-weight: 700; font-size: 16px;" id="chat-name">User</div>
-                <div style="font-size: 12px; color: #10b981;">● Online via Bluetooth</div>
+                <div style="font-size: 12px; color: #10b981;">Online</div>
             </div>
         </div>
-
         <div class="chat-area" id="msgs"></div>
-
-        <div id="attach-sheet">
-            <div class="sheet-item" onclick="pickImage()"><i class="fas fa-image" style="color:#2563eb;"></i> Galeri Foto</div>
-            <div class="sheet-item" onclick="pickFile()"><i class="fas fa-file-alt" style="color:#7c3aed;"></i> Dokumen File</div>
-        </div>
-
         <div class="chat-input-bar">
-            <div class="action-btn" onclick="toggleAttach()"><i class="fas fa-plus"></i></div>
             <textarea id="txt" placeholder="Ketik pesan..." rows="1"></textarea>
             <div class="action-btn send-btn" onclick="sendText()"><i class="fas fa-paper-plane"></i></div>
         </div>
     </div>
 
-    <div id="loading-overlay">
-        <div class="loader-box">
-            <h3 style="margin-top:0;" id="prog-title">Mengirim...</h3>
-            <div style="font-size:24px; font-weight:bold; color:var(--primary);" id="prog-text">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-            <p style="font-size:12px; color:var(--text-sub); margin-bottom:0;">Jaga aplikasi tetap terbuka</p>
-        </div>
-    </div>
-
-    <input type="file" id="inp-img" accept="image/*" style="display:none" onchange="procImg(this)">
-    <input type="file" id="inp-file" style="display:none" onchange="procFile(this)">
-
     <script type="text/javascript" src="cordova.js"></script>
     <script>
         var bt = null;
-        var incomingFile = { meta: null, data: [], received: 0 };
-        var isSending = false;
-        var CHUNK_SIZE = 900; 
 
         document.addEventListener('deviceready', function() {
             bt = window.bluetoothClassicSerialPort;
             
-            // Setup Permissions & Bluetooth
-            initBluetooth();
+            // Init Fitur
+            initPermissions();
+            loadProfileData(); // Load Nama & Tema
+            refreshLocation(); // Auto Deteksi Lokasi
 
-            // Auto resize textarea
-            const tx = document.getElementById('txt');
-            tx.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-                if(this.value == '') this.style.height = 'auto';
-            });
-
-            // Load saved theme
+            // Dark Mode Check
             if(localStorage.getItem('theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
                 document.getElementById('theme-toggle').checked = true;
             }
-
         }, false);
 
-        // --- UI NAVIGATION ---
-        function nav(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        // --- FITUR PROFILE (NAMA & LOKASI) ---
+        
+        function loadProfileData() {
+            // Ambil nama dari penyimpanan HP
+            var savedName = localStorage.getItem('mesh_username');
+            if(savedName) {
+                document.getElementById('display-name').innerText = savedName;
+            }
+        }
+
+        function openEditName() {
+            document.getElementById('edit-modal').style.display = 'flex';
+            document.getElementById('new-name-input').value = document.getElementById('display-name').innerText;
+        }
+
+        function closeEditName() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        function saveName() {
+            var newName = document.getElementById('new-name-input').value.trim();
+            if(newName) {
+                localStorage.setItem('mesh_username', newName); // Simpan Permanen
+                document.getElementById('display-name').innerText = newName;
+                closeEditName();
+            }
+        }
+
+        function refreshLocation() {
+            document.getElementById('loc-text').innerText = "Mencari GPS...";
             
-            // Show selected
-            document.getElementById('page-'+pageId).classList.add('active');
-            document.getElementById('nav-'+pageId).classList.add('active');
+            // Cek Izin & Ambil Lokasi
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude.toFixed(4);
+                var lon = pos.coords.longitude.toFixed(4);
+                
+                // Coba ubah koordinat jadi Nama Kota (Butuh Internet dikit buat API)
+                // Kalau offline, dia bakal nampilin Koordinat aja
+                fetchCityName(lat, lon);
+                
+            }, function(err) {
+                document.getElementById('loc-text').innerText = "Lokasi Tidak Dikenal";
+                alert("Gagal deteksi lokasi: Pastikan GPS Nyala!");
+            }, { enableHighAccuracy: true });
+        }
 
-            // Update Header Title
-            var titles = { 'chat': 'Pesan', 'global': 'Global Radar', 'profile': 'Profil Pengguna' };
-            document.querySelector('.head-title').innerText = titles[pageId];
-
-            if(pageId === 'global') forceScan();
-            if(pageId === 'chat') loadPairedList();
+        function fetchCityName(lat, lon) {
+            // Trik: Coba fetch ke OpenStreetMap (Gratis)
+            // Kalau offline, dia masuk ke 'catch' dan nampilin LatLong
+            var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    var city = data.address.city || data.address.town || data.address.village || "Lokasi Terdeteksi";
+                    document.getElementById('loc-text').innerText = city; // Contoh: "Jakarta Utara"
+                })
+                .catch(err => {
+                    // Kalau Offline / Gak ada kuota
+                    document.getElementById('loc-text').innerText = `${lat}, ${lon}`; 
+                });
         }
 
         function toggleTheme() {
@@ -302,244 +311,100 @@
             }
         }
 
-        // --- BLUETOOTH LOGIC (GOD MODE) ---
-        function initBluetooth() {
+        // --- BLUETOOTH CORE ---
+        function initPermissions() {
             var p = cordova.plugins.permissions;
-            var perms = [
+            var list = [
                 "android.permission.BLUETOOTH_SCAN", 
                 "android.permission.BLUETOOTH_CONNECT", 
-                "android.permission.BLUETOOTH_ADVERTISE", 
-                "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.READ_EXTERNAL_STORAGE"
+                "android.permission.BLUETOOTH_ADVERTISE",
+                "android.permission.ACCESS_FINE_LOCATION" // Wajib buat GPS
             ];
-
-            p.requestPermissions(perms, function(s) {
+            p.requestPermissions(list, function(s){
                 if(s.hasPermission) {
-                    bt.setDiscoverable(0); // Always visible
+                    bt.setDiscoverable(0);
                     bt.listen(function(){}, function(){});
-                    bt.subscribeRaw(handleRawData);
-                    loadPairedList();
-                    
-                    // Get My Info (Hack: Get Paired list usually returns my info in some plugins, or just fake it)
-                    // In classic bluetooth, getting own address is hard on Android 10+. 
-                    // We will just show name.
-                    bt.enable(function(){}, function(){}); 
-                }
-            }, function(){ alert("Izin Wajib!"); });
-        }
-
-        function forceScan() {
-            var listEl = document.getElementById('list-nearby');
-            listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub);">Scanning...</div>';
-            
-            bt.discoverUnpaired(function(devs) {
-                listEl.innerHTML = "";
-                if(devs.length === 0) listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub);">Tidak ada perangkat baru.</div>';
-                
-                devs.forEach(d => {
-                    if(!d.name) return;
-                    listEl.innerHTML += `
-                    <div class="list-item" onclick="connect('${d.address}', '${d.name}')">
-                        <div class="avatar"><i class="fas fa-mobile-alt"></i><div class="online-dot" style="background:#fbbf24"></div></div>
-                        <div class="item-info">
-                            <div class="item-name">${d.name}</div>
-                            <div class="item-sub">Tap untuk hubungkan</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:var(--text-sub)"></i>
-                    </div>`;
-                });
-            }, function(){ listEl.innerHTML = "Gagal scan."; });
-        }
-
-        function loadPairedList() {
-            bt.list(function(devs) {
-                var listEl = document.getElementById('list-paired');
-                var emptyEl = document.getElementById('empty-state-chat');
-                
-                if(devs.length > 0) {
-                    emptyEl.style.display = 'none';
-                    listEl.innerHTML = "";
-                    devs.forEach(d => {
-                        listEl.innerHTML += `
-                        <div class="list-item" onclick="connect('${d.address}', '${d.name}')">
-                            <div class="avatar"><i class="fas fa-user"></i><div class="online-dot"></div></div>
-                            <div class="item-info">
-                                <div class="item-name">${d.name}</div>
-                                <div class="item-sub">${d.address}</div>
-                            </div>
-                        </div>`;
-                    });
-                    // Set Profile Info Dummy (ambil device pertama sbg contoh ID)
-                    if(devs[0]) {
-                        document.getElementById('my-dev-name').innerText = "Device Ini";
-                        document.getElementById('my-dev-addr').innerText = "ID: " + Math.floor(Math.random()*10000);
-                    }
-                } else {
-                    emptyEl.style.display = 'flex';
-                    listEl.innerHTML = "";
+                    bt.subscribeRaw(handleData);
+                    loadPaired();
                 }
             }, function(){});
         }
 
-        function connect(addr, name) {
-            showProgress("Menghubungkan...", 100);
-            bt.connectInsecure(addr, function() {
-                hideProgress();
-                openChat(name);
-            }, function(e) {
-                hideProgress();
-                alert("Gagal: " + e);
-            });
+        function nav(page) {
+            document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+            document.getElementById('page-'+page).classList.add('active');
+            document.getElementById('nav-'+page).classList.add('active');
+            
+            var titles = {'chat':'Pesan', 'global':'Radar Mesh', 'profile':'Profil Pengguna'};
+            document.querySelector('.head-title').innerText = titles[page];
+            
+            if(page === 'global') forceScan();
         }
 
-        // --- CHAT LOGIC ---
-        function openChat(name) {
-            document.getElementById('chat-room').style.display = 'flex';
-            document.getElementById('chat-name').innerText = name;
-            document.getElementById('msgs').innerHTML = '';
+        function forceScan() {
+            var el = document.getElementById('list-nearby');
+            el.innerHTML = "<p style='text-align:center; color:#888;'>Scanning...</p>";
+            bt.discoverUnpaired(function(devs){
+                el.innerHTML = "";
+                devs.forEach(d => {
+                    if(!d.name) return;
+                    el.innerHTML += `<div class="list-item" onclick="connect('${d.address}', '${d.name}')">
+                        <div class="avatar"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="item-info"><div class="item-name">${d.name}</div><div class="item-sub">Tap Connect</div></div>
+                    </div>`;
+                });
+            }, function(){ el.innerHTML = "Gagal Scan"; });
+        }
+
+        function loadPaired() {
+            bt.list(function(devs){
+                var el = document.getElementById('list-paired');
+                var empty = document.getElementById('empty-state-chat');
+                if(devs.length>0) {
+                    empty.style.display='none';
+                    el.innerHTML="";
+                    devs.forEach(d=>{
+                        el.innerHTML += `<div class="list-item" onclick="connect('${d.address}', '${d.name}')">
+                            <div class="avatar"><i class="fas fa-user"></i></div>
+                            <div class="item-info"><div class="item-name">${d.name}</div><div class="item-sub">Tersimpan</div></div>
+                        </div>`;
+                    });
+                } else { empty.style.display='flex'; }
+            }, function(){});
+        }
+
+        function connect(addr, name) {
+            bt.connectInsecure(addr, function(){
+                document.getElementById('chat-room').style.display='flex';
+                document.getElementById('chat-name').innerText=name;
+                document.getElementById('msgs').innerHTML="";
+            }, function(e){ alert("Gagal: "+e); });
         }
 
         function closeChat() {
             bt.disconnect();
-            document.getElementById('chat-room').style.display = 'none';
+            document.getElementById('chat-room').style.display='none';
         }
 
         function sendText() {
-            var t = document.getElementById('txt').value.trim();
-            if(!t) return;
-            bt.write("TXT:" + t, function() {
-                addBubble(t, 'me', 'text');
-                document.getElementById('txt').value = '';
-                document.getElementById('txt').style.height = 'auto';
-            }, null);
-        }
-
-        function handleRawData(buffer) {
-            var chunk = String.fromCharCode.apply(null, new Uint8Array(buffer));
-            
-            if(chunk.startsWith("HEAD:")) {
-                var p = chunk.split(":");
-                incomingFile.meta = { type: p[1], name: p[2], size: parseInt(p[3]) };
-                incomingFile.data = [];
-                incomingFile.received = 0;
-                showProgress("Menerima " + p[2], 0);
-                return;
-            }
-
-            if(incomingFile.meta) {
-                incomingFile.data.push(chunk);
-                incomingFile.received += chunk.length;
-                updateProgress(Math.floor((incomingFile.received / incomingFile.meta.size) * 100));
-                
-                if(chunk.endsWith("END")) {
-                    var finalData = incomingFile.data.join("").replace("END", "");
-                    if(incomingFile.meta.type == 'IMG') addBubble(finalData, 'other', 'img');
-                    else addBubble(incomingFile.meta.name, 'other', 'file');
-                    incomingFile.meta = null;
-                    hideProgress();
-                }
-                return;
-            }
-
-            if(chunk.startsWith("TXT:")) {
-                addBubble(chunk.substring(4), 'other', 'text');
+            var t = document.getElementById('txt').value;
+            if(t.trim()) {
+                bt.write("TXT:"+t, function(){
+                    var d = document.createElement('div'); d.className='bubble me'; d.innerText=t;
+                    document.getElementById('msgs').appendChild(d);
+                    document.getElementById('txt').value="";
+                }, null);
             }
         }
 
-        function addBubble(content, who, type) {
-            var div = document.createElement('div');
-            div.className = 'bubble ' + who;
-            
-            if(type === 'text') div.innerText = content;
-            else if(type === 'img') div.innerHTML = `<img src="data:image/jpeg;base64,${content}">`;
-            else div.innerHTML = `<i class="fas fa-file"></i> ${content}`;
-            
-            var area = document.getElementById('msgs');
-            area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
-        }
-
-        // --- FILE SENDING ---
-        function sendLargeData(type, name, b64) {
-            if(isSending) return;
-            isSending = true;
-            var size = b64.length;
-            var head = "HEAD:" + type + ":" + name + ":" + size;
-            
-            showProgress("Mengirim...", 0);
-            bt.write(head, function() {
-                var offset = 0;
-                function send() {
-                    if(offset >= size) {
-                        bt.write("END", function() {
-                            isSending = false;
-                            hideProgress();
-                            if(type=='IMG') addBubble(b64, 'me', 'img');
-                            else addBubble(name, 'me', 'file');
-                        }, null);
-                        return;
-                    }
-                    var chunk = b64.substring(offset, offset + CHUNK_SIZE);
-                    bt.write(chunk, function() {
-                        offset += CHUNK_SIZE;
-                        updateProgress(Math.floor((offset/size)*100));
-                        setTimeout(send, 20);
-                    }, function(){ isSending=false; hideProgress(); alert("Gagal"); });
-                }
-                send();
-            }, function(){ isSending=false; hideProgress(); });
-        }
-
-        // Utils
-        function toggleAttach() { 
-            var s = document.getElementById('attach-sheet');
-            s.style.display = (s.style.display == 'flex') ? 'none' : 'flex';
-        }
-        function pickImage() { document.getElementById('inp-img').click(); toggleAttach(); }
-        function pickFile() { document.getElementById('inp-file').click(); toggleAttach(); }
-        
-        function procImg(el) {
-            if(el.files[0]) {
-                var f = el.files[0];
-                var r = new FileReader();
-                r.onload = function(e) {
-                    var i = new Image(); i.src = e.target.result;
-                    i.onload = function() {
-                        var c = document.createElement('canvas');
-                        var ctx = c.getContext('2d');
-                        var s = 500/i.width;
-                        c.width = 500; c.height = i.height*s;
-                        ctx.drawImage(i,0,0,c.width,c.height);
-                        sendLargeData('IMG', f.name, c.toDataURL('image/jpeg', 0.6).split(',')[1]);
-                    }
-                };
-                r.readAsDataURL(f);
+        function handleData(buffer) {
+            var s = String.fromCharCode.apply(null, new Uint8Array(buffer));
+            if(s.startsWith("TXT:")) {
+                var d = document.createElement('div'); d.className='bubble other'; d.innerText=s.substring(4);
+                document.getElementById('msgs').appendChild(d);
             }
         }
-        function procFile(el) {
-            if(el.files[0]) {
-                var f = el.files[0];
-                if(f.size > 500*1024) return alert("Maks 500KB");
-                var r = new FileReader();
-                r.onload = function(e) {
-                    sendLargeData('FILE', f.name, e.target.result.split(',')[1]);
-                };
-                r.readAsDataURL(f);
-            }
-        }
-
-        function showProgress(t, p) {
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('prog-title').innerText = t;
-            updateProgress(p);
-        }
-        function updateProgress(p) {
-            if(p>100)p=100;
-            document.getElementById('prog-text').innerText = p + '%';
-            document.getElementById('prog-fill').style.width = p + '%';
-        }
-        function hideProgress() { document.getElementById('loading-overlay').style.display = 'none'; }
-
     </script>
 </body>
 </html>
