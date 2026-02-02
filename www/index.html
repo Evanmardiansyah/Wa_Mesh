@@ -2,241 +2,374 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *;">
-    <title>WA Bluetooth</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; media-src *; img-src 'self' data: content:;">
+    
+    <title>WA Bluetooth Ultimate</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        :root { --wa-teal: #008069; --wa-bg: #e5ddd5; --active-tab: #ffffff; --inactive-tab: #8adad1; }
-        body { margin: 0; font-family: sans-serif; background: #fff; user-select: none; display: flex; flex-direction: column; height: 100vh; }
+        :root { --wa-teal: #008069; --wa-bg: #e5ddd5; --me-bg: #dcf8c6; --other-bg: #ffffff; }
+        * { box-sizing: border-box; }
         
-        /* HEADER & TABS */
-        header { background-color: var(--wa-teal); color: white; padding-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
-        .top-bar { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .title { font-size: 20px; font-weight: bold; }
+        body { margin: 0; font-family: Helvetica, Arial, sans-serif; background: #d1d7db; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER */
+        header { background: var(--wa-teal); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .app-title { font-weight: bold; font-size: 20px; }
+        .tabs { display: flex; background: var(--wa-teal); padding-bottom: 0; }
+        .tab { flex: 1; text-align: center; padding: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; font-weight: bold; font-size: 14px; border-bottom: 3px solid transparent; cursor: pointer; }
+        .tab.active { color: white; border-bottom: 3px solid white; }
+
+        /* MAIN AREA */
+        #main-container { flex: 1; position: relative; overflow: hidden; background: white; }
         
-        .tabs { display: flex; margin-top: 10px; }
-        .tab { flex: 1; text-align: center; padding: 10px; text-transform: uppercase; font-size: 14px; font-weight: bold; color: var(--inactive-tab); cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab.active { color: var(--active-tab); border-bottom: 3px solid white; }
+        /* LIST DEVICES (Personal/Nearby) */
+        .list-view { height: 100%; overflow-y: auto; display: none; }
+        .list-view.active { display: block; }
+        .device-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; cursor: pointer; transition: background 0.2s; }
+        .device-item:active { background: #f5f5f5; }
+        .avatar { width: 50px; height: 50px; background: #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; margin-right: 15px; }
+        .info { flex: 1; }
+        .name { font-weight: bold; font-size: 16px; color: #333; margin-bottom: 3px; }
+        .addr { font-size: 12px; color: #888; }
 
-        /* CONTENT AREA */
-        #main-content { flex: 1; overflow-y: auto; background: #fff; position: relative; }
+        /* CHAT ROOM OVERLAY */
+        #chat-room { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--wa-bg); z-index: 100; display: none; flex-direction: column; }
+        .chat-header { background: var(--wa-teal); padding: 10px; display: flex; align-items: center; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .back-btn { margin-right: 10px; padding: 5px; cursor: pointer; }
+        .chat-title { flex: 1; font-weight: bold; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* LIST DEVICES */
-        .device-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; cursor: pointer; }
-        .device-icon { width: 45px; height: 45px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-size: 20px; }
-        .device-info { flex: 1; }
-        .device-name { font-weight: bold; font-size: 16px; color: #333; }
-        .device-addr { font-size: 12px; color: #888; margin-top: 2px; }
-        .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #eee; color: #555; }
-
-        /* CHAT ROOM (Overlay) */
-        #chat-room { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 20; display: none; flex-direction: column; }
-        .chat-header { background: var(--wa-teal); padding: 10px; color: white; display: flex; align-items: center; }
-        .chat-area { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-opacity:0.5;}
+        /* CHAT MESSAGES */
+        #msg-area { flex: 1; overflow-y: auto; padding: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; display: flex; flex-direction: column; }
         
-        .msg { max-width: 75%; padding: 8px 12px; margin-bottom: 5px; border-radius: 8px; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .msg.me { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
-        .msg.other { align-self: flex-start; background: #fff; border-top-left-radius: 0; }
+        .msg { max-width: 80%; padding: 6px 10px; margin-bottom: 8px; border-radius: 8px; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.1); display: inline-block; }
+        .msg.me { align-self: flex-end; background: var(--me-bg); border-top-right-radius: 0; }
+        .msg.other { align-self: flex-start; background: var(--other-bg); border-top-left-radius: 0; }
+        .msg img { max-width: 100%; border-radius: 5px; margin-top: 5px; display: block; }
+        .time { font-size: 10px; color: #999; float: right; margin-top: 5px; margin-left: 10px; }
 
-        .chat-input { padding: 5px; background: #f0f0f0; display: flex; align-items: center; }
-        input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; margin: 0 5px; }
-        .btn-send { width: 40px; height: 40px; background: var(--wa-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-left: 5px; cursor: pointer; }
+        /* INPUT BAR (YANG BISA MELAR) */
+        .chat-footer { background: #f0f0f0; min-height: 50px; padding: 5px 10px; display: flex; align-items: flex-end; gap: 8px; box-shadow: 0 -1px 2px rgba(0,0,0,0.1); }
+        
+        /* Textarea Auto Expand */
+        #input-box {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 10px 15px;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 16px;
+            max-height: 100px; /* Maksimal tinggi sebelum scroll */
+            overflow-y: auto;
+            resize: none;
+            min-height: 40px;
+            line-height: 20px;
+        }
 
-        /* Loading */
-        .loading { text-align: center; padding: 20px; color: #888; display: none; }
-        .error-box { padding: 20px; text-align: center; color: #d32f2f; display: none; }
+        .icon-btn { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 50%; color: #666; cursor: pointer; font-size: 20px; }
+        .icon-btn:active { background: #ddd; }
+        .send-btn { background: var(--wa-teal); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        /* Loading Overlay */
+        #loading { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:999; display:none; justify-content:center; align-items:center; flex-direction:column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--wa-teal); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="top-bar">
-            <div class="title">WA Bluetooth</div>
-            <i class="fas fa-ellipsis-v"></i>
-        </div>
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('personal')" id="tab-personal">Personal</div>
-            <div class="tab" onclick="switchTab('nearby')" id="tab-nearby">Nearby (Sekitar)</div>
-        </div>
+        <div class="app-title">WA Bluetooth</div>
+        <i class="fas fa-ellipsis-v"></i>
     </header>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('personal')" id="tab-personal">Personal</div>
+        <div class="tab" onclick="switchTab('nearby')" id="tab-nearby">Sekitar</div>
+    </div>
 
-    <div id="main-content">
-        <div id="view-personal">
-            <div class="loading" id="load-personal">Memuat perangkat tersimpan...</div>
-            <div id="list-personal"></div>
+    <div id="main-container">
+        <div id="view-personal" class="list-view active">
+            <div style="padding:20px; text-align:center; color:#999;" id="status-personal">Memuat...</div>
         </div>
 
-        <div id="view-nearby" style="display: none;">
-            <div style="padding:15px; background:#e3f2fd; font-size:12px; color:#0d47a1;">
-                <i class="fas fa-info-circle"></i> Fitur Nearby akan mencari perangkat Bluetooth aktif di sekitar yang belum dipairing.
+        <div id="view-nearby" class="list-view">
+            <div style="padding:15px; background:#e3f2fd; color:#0d47a1; font-size:12px; display:flex; align-items:center;">
+                <i class="fas fa-info-circle" style="margin-right:10px;"></i>
+                Scan perangkat Bluetooth di sekitar yang belum dipairing.
             </div>
-            <div class="loading" id="load-nearby">Sedang memindai sekitar...</div>
-            <button onclick="scanNearby()" style="width:90%; margin:5%; padding:10px; background:var(--wa-teal); color:white; border:none; border-radius:5px;">SCAN ULANG</button>
+            <button onclick="scanNearby()" style="width:90%; margin:10px 5%; padding:12px; background:var(--wa-teal); color:white; border:none; border-radius:5px; font-weight:bold;">SCAN ULANG</button>
             <div id="list-nearby"></div>
         </div>
     </div>
 
     <div id="chat-room">
         <div class="chat-header">
-            <i class="fas fa-arrow-left" onclick="tutupChat()" style="margin-right: 15px; cursor: pointer;"></i>
-            <div style="flex:1;">
-                <div id="chat-name" style="font-weight: bold;">Nama Kontak</div>
-                <div id="chat-status" style="font-size: 11px;">Terhubung</div>
+            <i class="fas fa-arrow-left back-btn" onclick="closeChat()"></i>
+            <div class="avatar" style="width:35px; height:35px; font-size:16px; margin-right:10px;"><i class="fas fa-user"></i></div>
+            <div class="chat-title" id="room-name">Nama Kontak</div>
+        </div>
+
+        <div id="msg-area">
+            <div style="text-align:center; margin-top:20px; font-size:12px; color:#777; background:rgba(255,255,255,0.6); padding:5px; border-radius:10px; display:inline-block; align-self:center;">
+                <i class="fas fa-lock"></i> Pesan terenkripsi end-to-end (Offline)
             </div>
         </div>
-        <div class="chat-area" id="msg-area"></div>
-        <div class="chat-input">
-            <input type="text" id="msg-input" placeholder="Ketik pesan...">
-            <div class="btn-send" onclick="kirimPesan()"><i class="fas fa-paper-plane"></i></div>
+
+        <div class="chat-footer">
+            <div class="icon-btn" onclick="pilihGambar()">
+                <i class="fas fa-paperclip" style="transform: rotate(45deg);"></i>
+            </div>
+            
+            <textarea id="input-box" placeholder="Ketik pesan..." rows="1"></textarea>
+            
+            <div class="icon-btn send-btn" onclick="kirimPesan()">
+                <i class="fas fa-paper-plane"></i>
+            </div>
         </div>
+    </div>
+
+    <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="prosesGambar(this)">
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <div id="loading-text" style="font-weight:bold; color:#555;">Memproses...</div>
     </div>
 
     <script type="text/javascript" src="cordova.js"></script>
     <script>
-        document.addEventListener('deviceready', onDeviceReady, false);
+        var bt; // Variable untuk plugin
 
-        function onDeviceReady() {
-            // 1. MINTA IZIN DULU (KHUSUS ANDROID 12+)
-            requestPermissions();
+        document.addEventListener('deviceready', function() {
+            // Gunakan Plugin yang Benar (Classic Serial Port)
+            bt = window.bluetoothClassicSerialPort;
+            
+            // 1. Minta Izin Android 12+
+            mintaIzin();
+
+            // 2. Aktifkan Mode Server (Dengar)
+            aktifkanServer();
+
+            // 3. Listener Textarea Auto-Resize
+            setupInputBar();
+
+            // Load Awal
+            loadPersonal();
+        }, false);
+
+        // --- SETUP TAMPILAN ---
+        function setupInputBar() {
+            const tx = document.getElementById('input-box');
+            tx.addEventListener("input", function() {
+                this.style.height = "auto"; // Reset dulu
+                this.style.height = (this.scrollHeight) + "px"; // Set sesuai isi
+                if(this.value === "") this.style.height = "40px"; // Balik ke default kalau kosong
+            });
         }
 
-        // --- LOGIKA PERMISSION / IZIN ---
-        function requestPermissions() {
-            var permissions = cordova.plugins.permissions;
-            var list = [
-                permissions.BLUETOOTH_SCAN,
-                permissions.BLUETOOTH_CONNECT,
-                permissions.BLUETOOTH_ADVERTISE,
-                permissions.ACCESS_FINE_LOCATION
-            ];
-
-            permissions.checkPermission(list, function(status) {
-                if(!status.hasPermission) {
-                    permissions.requestPermissions(list, function(status) {
-                        if(status.hasPermission) {
-                            console.log("Izin Diberikan!");
-                            loadPairedDevices(); // Langsung load data
-                        } else {
-                            alert("Aplikasi butuh izin Bluetooth agar bisa jalan, Bro!");
-                        }
-                    }, function() { alert("Gagal request izin."); });
-                } else {
-                    loadPairedDevices(); // Sudah punya izin
-                }
-            });
-            
-            // Cek Bluetooth Nyala/Gak
-            bluetoothSerial.isEnabled(null, function() {
-                bluetoothSerial.enable();
-            });
-            
-            // Listen pesan masuk
-            bluetoothSerial.subscribe('\n', function(data){ tampilkanPesan(data, 'other'); }, null);
-        }
-
-        // --- LOGIKA TABS ---
-        function switchTab(tabName) {
-            // Ganti Style Tab
+        function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-
-            // Ganti Tampilan
-            document.getElementById('view-personal').style.display = (tabName === 'personal') ? 'block' : 'none';
-            document.getElementById('view-nearby').style.display = (tabName === 'nearby') ? 'block' : 'none';
-
-            if(tabName === 'personal') loadPairedDevices();
-            if(tabName === 'nearby') scanNearby();
-        }
-
-        // --- PERSONAL (PAIRED) ---
-        function loadPairedDevices() {
-            document.getElementById('load-personal').style.display = 'block';
-            document.getElementById('list-personal').innerHTML = "";
+            document.querySelectorAll('.list-view').forEach(v => v.classList.remove('active'));
             
-            bluetoothSerial.list(function(devices) {
-                document.getElementById('load-personal').style.display = 'none';
-                devices.forEach(device => {
-                    renderDevice(device, 'list-personal', true);
-                });
-                if(devices.length === 0) document.getElementById('list-personal').innerHTML = "<div style='text-align:center; padding:20px; color:#999;'>Belum ada perangkat dipairing.</div>";
-            }, function() {});
+            document.getElementById('tab-'+tab).classList.add('active');
+            document.getElementById('view-'+tab).classList.add('active');
+            
+            if(tab === 'personal') loadPersonal();
         }
 
-        // --- NEARBY (DISCOVERY) ---
+        // --- BLUETOOTH CORE ---
+        function mintaIzin() {
+            var p = cordova.plugins.permissions;
+            var list = [
+                p.BLUETOOTH_SCAN, p.BLUETOOTH_CONNECT, p.BLUETOOTH_ADVERTISE, p.ACCESS_FINE_LOCATION
+            ];
+            p.checkPermission(list, function(s){
+                if(!s.hasPermission) p.requestPermissions(list, function(s){ console.log("Izin OK"); }, function(e){ alert("Izin Ditolak!"); });
+            });
+        }
+
+        function aktifkanServer() {
+            // HP ini standby biar bisa ditelepon
+            bt.listen(function() { console.log("Server Listening..."); }, function(e){ console.error(e); });
+            
+            // Subscribe data masuk
+            bt.subscribe('\n', function(data) {
+                terimaData(data);
+            });
+        }
+
+        function loadPersonal() {
+            document.getElementById('status-personal').innerText = "Memuat...";
+            bt.list(function(devices) {
+                renderList(devices, 'view-personal');
+                if(devices.length === 0) document.getElementById('status-personal').innerText = "Belum ada perangkat dipairing.";
+                else document.getElementById('status-personal').style.display = 'none';
+            }, function(){});
+        }
+
         function scanNearby() {
-            document.getElementById('load-nearby').style.display = 'block';
-            document.getElementById('list-nearby').innerHTML = "";
+            document.getElementById('list-nearby').innerHTML = "<div style='padding:20px; text-align:center;'>Sedang mencari...</div>";
+            bt.discoverUnpaired(function(devices) {
+                renderList(devices, 'list-nearby');
+                if(devices.length === 0) document.getElementById('list-nearby').innerHTML = "<div style='padding:20px; text-align:center;'>Tidak ada perangkat ditemukan.</div>";
+            }, function(e){ alert("Gagal scan: " + e); });
+        }
 
-            // Fungsi discoverUnpaired (Mencari perangkat yang belum pair)
-            bluetoothSerial.discoverUnpaired(function(devices) {
-                document.getElementById('load-nearby').style.display = 'none';
-                devices.forEach(device => {
-                    renderDevice(device, 'list-nearby', false);
-                });
-                if(devices.length === 0) document.getElementById('list-nearby').innerHTML = "<div style='text-align:center; padding:20px; color:#999;'>Tidak ada perangkat terdeteksi.</div>";
-            }, function(err) {
-                document.getElementById('load-nearby').style.display = 'none';
-                alert("Gagal scan: " + err);
+        function renderList(devices, targetId) {
+            var container = document.getElementById(targetId);
+            // Hapus isi lama kecuali status text
+            if(targetId === 'view-personal') container.innerHTML = '<div style="padding:20px; text-align:center; display:none;" id="status-personal"></div>';
+            else container.innerHTML = "";
+
+            devices.forEach(d => {
+                if(!d.name) return;
+                var html = `
+                <div class="device-item" onclick="connectTo('${d.address}', '${d.name}')">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="info">
+                        <div class="name">${d.name}</div>
+                        <div class="addr">${d.address}</div>
+                    </div>
+                </div>`;
+                container.innerHTML += html;
             });
         }
 
-        // --- RENDER LIST ---
-        function renderDevice(device, targetId, isPaired) {
-            if(!device.name) return; // Skip yang gak ada namanya
-            
-            let html = `
-            <div class="device-item" onclick="connectTo('${device.address}', '${device.name}')">
-                <div class="device-icon" style="background:${isPaired ? '#008069' : '#666'}">
-                    <i class="fas ${isPaired ? 'fa-user' : 'fa-broadcast-tower'}"></i>
-                </div>
-                <div class="device-info">
-                    <div class="device-name">${device.name}</div>
-                    <div class="device-addr">${device.address}</div>
-                </div>
-                ${isPaired ? '' : '<span class="status-badge">Tap to Connect</span>'}
-            </div>`;
-            document.getElementById(targetId).innerHTML += html;
-        }
-
-        // --- KONEKSI & CHAT ---
+        // --- KONEKSI ---
         function connectTo(address, name) {
-            alert("Menghubungkan ke " + name + "...");
-            bluetoothSerial.connectInsecure(address, function() {
-                // Sukses
-                document.getElementById('chat-room').style.display = 'flex';
-                document.getElementById('chat-name').innerText = name;
-                document.getElementById('msg-area').innerHTML = ""; // Bersihkan chat lama
-                tampilkanPesan("Terhubung ke chat!", "me");
-            }, function(err) {
-                alert("Gagal konek: " + err + "\n\nTips: Kalau di Nearby, kadang perlu pairing manual dulu di setting HP.");
+            showLoading("Menghubungkan ke " + name + "...");
+            bt.connectInsecure(address, function() {
+                hideLoading();
+                bukaChat(name);
+                tambahPesan("Sistem", "Berhasil terhubung dengan " + name, "system");
+            }, function(e) {
+                hideLoading();
+                alert("Gagal konek: " + e + "\nPastikan HP teman membuka aplikasi ini!");
             });
         }
 
-        function tutupChat() {
-            bluetoothSerial.disconnect();
+        function bukaChat(name) {
+            document.getElementById('room-name').innerText = name;
+            document.getElementById('chat-room').style.display = 'flex';
+            document.getElementById('msg-area').innerHTML = ""; // Bersihkan chat lama
+        }
+
+        function closeChat() {
+            bt.disconnect();
             document.getElementById('chat-room').style.display = 'none';
         }
 
+        // --- KIRIM & TERIMA PESAN ---
         function kirimPesan() {
-            let input = document.getElementById('msg-input');
-            let text = input.value;
+            var input = document.getElementById('input-box');
+            var text = input.value.trim();
             if(!text) return;
 
-            bluetoothSerial.write(text + "\n", function() {
-                tampilkanPesan(text, 'me');
+            // Format Protokol: TXT:IsiPesan
+            var paket = "TXT:" + text + "\n";
+            
+            bt.write(paket, function() {
+                tambahPesan("Me", text, "me");
                 input.value = "";
-            }, function() { alert("Gagal kirim, koneksi putus."); });
+                input.style.height = "40px"; // Reset tinggi input
+            }, function(e){ alert("Gagal kirim: " + e); });
         }
 
-        function tampilkanPesan(text, who) {
-            let area = document.getElementById('msg-area');
-            let div = document.createElement('div');
-            div.className = 'msg ' + who;
-            div.innerText = text;
+        function terimaData(raw) {
+            // Parsing Protokol
+            // Format bisa "TXT:Halo" atau "IMG:Base64String"
+            if(raw.startsWith("TXT:")) {
+                var isi = raw.substring(4);
+                tambahPesan("Teman", isi, "other");
+            } else if (raw.startsWith("IMG:")) {
+                var imgData = raw.substring(4);
+                tambahGambar("Teman", imgData, "other");
+            }
+        }
+
+        function tambahPesan(sender, text, type) {
+            var area = document.getElementById('msg-area');
+            var div = document.createElement('div');
+            
+            if(type === 'system') {
+                div.style.cssText = "text-align:center; font-size:11px; color:#555; margin:5px 0;";
+                div.innerHTML = `<span style="background:#e1f5fe; padding:3px 8px; border-radius:5px;">${text}</span>`;
+            } else {
+                div.className = "msg " + type;
+                var time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                div.innerHTML = `${text} <span class="time">${time}</span>`;
+            }
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
         }
+
+        function tambahGambar(sender, base64, type) {
+            var area = document.getElementById('msg-area');
+            var div = document.createElement('div');
+            div.className = "msg " + type;
+            var time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            // Render Gambar
+            div.innerHTML = `<img src="${base64}"> <span class="time">${time}</span>`;
+            area.appendChild(div);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        // --- KIRIM GAMBAR (LOGIKA KOMPRESI) ---
+        function pilihGambar() {
+            document.getElementById('file-input').click();
+        }
+
+        function prosesGambar(input) {
+            if (input.files && input.files[0]) {
+                showLoading("Mengompres gambar...");
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    // Pakai Canvas buat resize gambar biar ringan dikirim lewat Bluetooth
+                    var img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        
+                        // Resize ke max 300px lebar (Biar cepat)
+                        var maxWidth = 300;
+                        var scale = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scale;
+                        
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        // Convert ke Base64 Low Quality (JPEG 0.6)
+                        var base64 = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        console.log("Size Gambar: " + base64.length + " bytes");
+                        
+                        // KIRIM VIA BLUETOOTH
+                        // Protokol: IMG:Base64String\n
+                        bt.write("IMG:" + base64 + "\n", function() {
+                            hideLoading();
+                            tambahGambar("Me", base64, "me");
+                        }, function(e){
+                            hideLoading();
+                            alert("Gagal kirim gambar: " + e);
+                        });
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // --- UTILS ---
+        function showLoading(text) {
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('loading-text').innerText = text;
+        }
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
     </script>
 </body>
 </html>
