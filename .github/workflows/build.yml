@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Setup Java 17 (Wajib untuk Android 13+)
+      # 1. Setup Java 17
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Setup Gradle 8.7 (Versi Stabil)
+      # 3. Setup Gradle 8.7
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -30,16 +30,15 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-     #5. Ganti Plugin (Copot yang lama, pasang yang baru)
-       - name: Install Dependencies
+      # 5. Ganti Plugin (Fix Typo Bluetooth LE disini)
+      - name: Install Dependencies
         run: |
             npm install
             cordova plugin remove cordova-plugin-bluetooth-classic-serial-port || true
             cordova plugin remove cordova-plugin-geolocation || true
-            cordova plugin add cordova-plugin-bluetooth-le
+            cordova plugin add cordova-plugin-bluetoothle
 
-      # 6. PASANG PLATFORM (Ini KUNCI perbaikannya)
-      # Kita paksa hapus dulu (kalau ada) lalu pasang baru
+      # 6. Pasang Platform Android
       - name: Add Android Platform
         run: |
             cordova platform remove android || true
