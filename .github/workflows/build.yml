@@ -7,30 +7,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Setup Java 17
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 2. Setup Node.js 18
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3. Setup Gradle 8.7
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.7'
 
-      # 4. Install Cordova
       - name: Install Cordova
         run: npm install -g cordova
 
-      # 5. Ganti Plugin (Fix Typo Bluetooth LE disini)
       - name: Install Dependencies
         run: |
             npm install
@@ -38,17 +33,14 @@ jobs:
             cordova plugin remove cordova-plugin-geolocation || true
             cordova plugin add cordova-plugin-bluetoothle
 
-      # 6. Pasang Platform Android
       - name: Add Android Platform
         run: |
             cordova platform remove android || true
             cordova platform add android@13.0.0
 
-      # 7. Build APK
       - name: Build APK
         run: cordova build android --debug
 
-      # 8. Upload Hasil
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
