@@ -5,567 +5,433 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval';">
     
-    <title>BitChat Mesh</title>
+    <title>Material Mesh</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- MATERIAL DESIGN 3 TOKENS --- */
+        /* --- MATERIAL YOU THEME (PASTEL) --- */
         :root {
-            --md-sys-color-primary: #006C4C;
-            --md-sys-color-on-primary: #FFFFFF;
-            --md-sys-color-primary-container: #89F8C7;
-            --md-sys-color-on-primary-container: #002114;
-            --md-sys-color-background: #FBFDF9;
-            --md-sys-color-surface: #EBF2ED;
-            --md-sys-color-surface-variant: #DBE5DE;
-            --md-sys-color-outline: #707974;
-            --md-sys-color-on-surface: #191C1B;
+            --md-bg: #F2F1F6;
+            --md-surface: #FFFFFF;
+            --md-primary: #6750A4;
+            --md-primary-container: #EADDFF;
+            --md-on-primary-container: #21005D;
+            --md-secondary-container: #E8DEF8;
+            --md-text: #1C1B1F;
+            --md-subtext: #49454F;
+            --radius-xl: 28px;
+            --radius-l: 16px;
         }
 
         [data-theme="dark"] {
-            --md-sys-color-primary: #6CDDAE;
-            --md-sys-color-on-primary: #003826;
-            --md-sys-color-primary-container: #005138;
-            --md-sys-color-background: #191C1B;
-            --md-sys-color-surface: #202523;
-            --md-sys-color-surface-variant: #404944;
-            --md-sys-color-outline: #89938D;
-            --md-sys-color-on-surface: #E1E3DF;
+            --md-bg: #141218;
+            --md-surface: #1D1B20;
+            --md-primary: #D0BCFF;
+            --md-primary-container: #4F378B;
+            --md-on-primary-container: #EADDFF;
+            --md-secondary-container: #4A4458;
+            --md-text: #E6E1E5;
+            --md-subtext: #CAC4D0;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            margin: 0; font-family: 'Roboto', sans-serif;
-            background: var(--md-sys-color-background);
-            color: var(--md-sys-color-on-surface);
+            margin: 0; font-family: 'Google Sans', sans-serif;
+            background: var(--md-bg); color: var(--md-text);
             height: 100vh; display: flex; flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            overflow: hidden; user-select: none;
+            overflow: hidden; padding-top: env(safe-area-inset-top);
         }
 
-        /* --- COMPONENTS --- */
-        .btn-filled {
-            background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
-            border: none; height: 50px; border-radius: 25px;
-            font-size: 16px; font-weight: 500; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.2s;
-        }
-        .btn-filled:active { transform: scale(0.98); }
-
-        .icon-btn {
-            width: 40px; height: 40px; border-radius: 50%;
+        /* --- TYPOGRAPHY & BUTTONS --- */
+        h1 { font-size: 32px; font-weight: 400; margin: 0 0 10px 0; }
+        h2 { font-size: 22px; font-weight: 500; margin: 0; }
+        
+        .btn-large {
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+            height: 56px; border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            color: var(--md-sys-color-on-surface); cursor: pointer;
+            font-size: 16px; font-weight: 500; border: none; width: 100%;
+            gap: 10px; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .icon-btn:active { background: rgba(0,0,0,0.1); }
+        .btn-large:active { transform: scale(0.98); opacity: 0.8; }
 
+        /* --- CARDS --- */
         .card {
-            background: var(--md-sys-color-surface); padding: 16px;
-            border-radius: 20px; margin-bottom: 12px;
-            display: flex; align-items: center; gap: 16px;
+            background: var(--md-surface);
+            padding: 20px; border-radius: var(--radius-xl);
+            margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        
+        .avatar {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--md-secondary-container);
+            color: var(--md-text);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0;
         }
 
-        /* --- SETUP & EDIT PROFILE --- */
-        #setup-view, #edit-profile-modal {
+        /* --- SETUP SCREEN --- */
+        #view-setup {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--md-sys-color-background); z-index: 999;
-            display: flex; flex-direction: column; padding: 24px;
-            overflow-y: auto; transition: 0.3s;
+            background: var(--md-bg); z-index: 200;
+            display: flex; flex-direction: column; padding: 30px;
+            overflow-y: auto;
         }
-        #edit-profile-modal { transform: translateY(100%); z-index: 1100; }
-        #edit-profile-modal.open { transform: translateY(0); }
-
-        .input-box {
-            background: var(--md-sys-color-surface-variant);
-            border: none; border-bottom: 2px solid var(--md-sys-color-outline);
-            padding: 16px; font-size: 16px; color: var(--md-sys-color-on-surface);
-            border-radius: 4px 4px 0 0; width: 100%; margin-bottom: 24px; outline: none;
+        
+        .input-pill {
+            background: var(--md-surface); border: none;
+            height: 60px; border-radius: 30px; padding: 0 24px;
+            font-size: 18px; width: 100%; margin-bottom: 30px;
+            color: var(--md-text); outline: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .input-box:focus { border-color: var(--md-sys-color-primary); }
-
-        .grid-avatars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
-        .grid-item {
-            aspect-ratio: 1; border-radius: 16px; border: 1px solid var(--md-sys-color-outline);
-            display: flex; align-items: center; justify-content: center; font-size: 28px;
+        
+        .avatar-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 40px;
         }
-        .grid-item.selected {
-            background: var(--md-sys-color-primary-container);
-            border-color: var(--md-sys-color-primary); border-width: 2px;
+        .av-item {
+            aspect-ratio: 1; border-radius: 20px;
+            background: var(--md-surface);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; border: 2px solid transparent; cursor: pointer;
         }
-
-        /* --- MAIN HEADER --- */
-        header {
-            padding: 12px 20px; background: var(--md-sys-color-background);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .profile-chip {
-            background: var(--md-sys-color-surface); padding: 6px 12px 6px 6px;
-            border-radius: 30px; display: flex; align-items: center; gap: 10px;
-            border: 1px solid var(--md-sys-color-outline); cursor: pointer;
-        }
-        .my-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--md-sys-color-primary-container);
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        .av-item.selected {
+            border-color: var(--md-primary);
+            background: var(--md-primary-container);
         }
 
-        /* --- RADAR LIST --- */
-        #content-area { flex: 1; overflow-y: auto; padding: 16px; }
+        /* --- MAIN APP --- */
+        #view-app { display: none; flex-direction: column; height: 100%; }
+
+        header { padding: 20px 24px; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--md-surface); padding: 8px 16px;
+            border-radius: 12px; font-size: 14px; font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        #list-area { flex: 1; overflow-y: auto; padding: 0 20px 100px 20px; }
+
+        /* --- BOTTOM NAV (PILL STYLE) --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--md-surface);
+            padding: 16px 24px 30px 24px; /* Extra padding for bottom safe area */
+            display: flex; justify-content: space-around;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            width: 60px; cursor: pointer;
+        }
+        .nav-pill {
+            width: 64px; height: 32px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .nav-item.active .nav-pill { background: var(--md-primary-container); }
+        .nav-item.active .material-icons-round { color: var(--md-on-primary-container); }
+        .nav-label { font-size: 12px; font-weight: 500; color: var(--md-subtext); }
 
         /* --- CHAT ROOM --- */
-        #chat-view {
+        #view-chat {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--md-sys-color-background); z-index: 100;
+            background: var(--md-bg); z-index: 100;
             display: none; flex-direction: column;
         }
-        .chat-header {
-            padding: 12px 16px; background: var(--md-sys-color-surface);
-            display: flex; align-items: center; gap: 12px; elevation: 2;
+        .chat-appbar {
+            padding: 16px 24px; background: var(--md-surface);
+            display: flex; align-items: center; gap: 16px;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        #msgs-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-
-        .bubble {
-            max-width: 80%; padding: 10px 14px; border-radius: 18px;
-            font-size: 15px; line-height: 1.4; position: relative;
-        }
-        .me { align-self: flex-end; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border-bottom-right-radius: 4px; }
-        .other { align-self: flex-start; background: var(--md-sys-color-surface-variant); color: var(--md-sys-color-on-surface); border-bottom-left-radius: 4px; }
+        #msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
         
-        .bubble img { max-width: 100%; border-radius: 10px; margin-top: 5px; }
-        .bubble .meta-loc { font-size: 10px; opacity: 0.7; display: flex; align-items: center; gap: 3px; margin-top: 4px; }
-
+        .bubble {
+            max-width: 75%; padding: 14px 18px; border-radius: 20px;
+            font-size: 16px; line-height: 1.4;
+        }
+        .me { align-self: flex-end; background: var(--md-primary); color: #FFF; border-bottom-right-radius: 4px; }
+        .other { align-self: flex-start; background: var(--md-surface); color: var(--md-text); border-bottom-left-radius: 4px; }
+        
         .input-bar {
-            padding: 10px 16px; background: var(--md-sys-color-surface);
-            display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--md-sys-color-outline);
+            padding: 16px; background: var(--md-surface);
+            display: flex; gap: 12px; align-items: center;
+            border-radius: 24px 24px 0 0;
         }
-        .msg-input {
-            flex: 1; padding: 12px 16px; border-radius: 24px; border: none;
-            background: var(--md-sys-color-surface-variant); color: var(--md-sys-color-on-surface);
-            outline: none; font-size: 16px;
-        }
-
-        /* --- ATTACHMENT MENU --- */
-        #attach-menu {
-            position: absolute; bottom: 80px; left: 16px;
-            background: var(--md-sys-color-surface);
-            border-radius: 16px; padding: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            display: none; flex-direction: column; gap: 5px; z-index: 101;
-        }
-        .attach-item {
-            padding: 12px 20px; display: flex; align-items: center; gap: 10px;
-            border-radius: 12px; font-weight: 500;
-        }
-        .attach-item:active { background: var(--md-sys-color-surface-variant); }
-
-        /* TOAST */
-        #toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: #323232; color: white; padding: 10px 20px; border-radius: 20px;
-            font-size: 14px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 2000;
-        }
-        #toast.show { opacity: 1; bottom: 100px; }
     </style>
 </head>
 <body>
 
-    <div id="setup-view">
+    <div id="view-setup">
         <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
-            <span class="material-icons-round" style="font-size:64px; color:var(--md-sys-color-primary); margin-bottom:20px;">security</span>
-            <h1 style="margin-bottom:8px;">BitChat ID</h1>
-            <p style="color:var(--md-sys-color-outline); margin-bottom:30px;">Buat profil agen lokal.</p>
+            <div style="font-size:60px; margin-bottom:20px;">✨</div>
+            <h1>Halo!</h1>
+            <p style="color:var(--md-subtext); font-size:18px; margin-bottom:40px;">
+                Selamat datang di Mesh.<br>Chat tanpa internet, desain cantik.
+            </p>
             
-            <input type="text" id="in-name" class="input-box" placeholder="Nama Panggilan">
+            <input type="text" id="setup-name" class="input-pill" placeholder="Nama Kamu">
             
-            <p style="margin-bottom:12px; font-weight:500;">Pilih Avatar</p>
-            <div class="grid-avatars" id="setup-avatars">
-                </div>
-        </div>
-        <button class="btn-filled" onclick="finishSetup()">MASUK</button>
-        <div id="perm-log" style="text-align:center; font-size:11px; margin-top:10px; color:gray;">Check System...</div>
-    </div>
-
-    <div id="edit-profile-modal">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2>Edit Profil</h2>
-            <span class="material-icons-round" onclick="toggleEditProfile(false)">close</span>
+            <p style="margin-left:10px; color:var(--md-subtext);">Pilih Karakter</p>
+            <div class="avatar-grid" id="setup-avatars"></div>
         </div>
         
-        <input type="text" id="edit-name" class="input-box" placeholder="Nama Baru">
-        <p style="margin-bottom:12px;">Ganti Avatar</p>
-        <div class="grid-avatars" id="edit-avatars"></div>
-        
-        <button class="btn-filled" onclick="saveProfile()">SIMPAN PERUBAHAN</button>
+        <button class="btn-large" onclick="finishSetup()">
+            MULAI SEKARANG <span class="material-icons-round">arrow_forward</span>
+        </button>
+        <div id="debug" style="text-align:center; font-size:11px; margin-top:10px; color:gray;">Menunggu Izin...</div>
     </div>
 
-    <div id="app-view" style="display:none;">
+    <div id="view-app">
         <header>
-            <div class="profile-chip" onclick="toggleEditProfile(true)">
-                <div class="my-avatar" id="head-av">?</div>
-                <span style="font-weight:500; font-size:14px;" id="head-name">User</span>
-            </div>
-            <div class="profile-chip" onclick="toggleTheme()" style="padding:6px 12px;">
-                <span class="material-icons-round">dark_mode</span>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h1 style="font-size:28px;">Radar</h1>
+                    <div style="color:var(--md-subtext); font-size:14px;" id="head-user">User</div>
+                </div>
+                <div class="chip" onclick="startEngine(true)">
+                    <span class="material-icons-round" style="color:#10b981; font-size:16px;">circle</span>
+                    <span id="status-txt">Aktif</span>
+                </div>
             </div>
         </header>
 
-        <div id="content-area">
-            <div style="text-align:center; padding-top:100px; opacity:0.5;">
-                <span class="material-icons-round" style="font-size:48px; color:var(--md-sys-color-outline);">radar</span>
-                <p>Scanning Area...</p>
+        <div id="list-area">
+            <div style="margin-top:50px; text-align:center; opacity:0.5;">
+                <span class="material-icons-round" style="font-size:64px; color:#D0BCFF;">wifi_tethering</span>
+                <p>Mencari teman di sekitar...</p>
+                <button class="btn-large" style="width:200px; margin:20px auto; height:40px; font-size:14px;" onclick="startEngine(true)">
+                    SCAN ULANG
+                </button>
             </div>
         </div>
 
-        <div style="background:var(--md-sys-color-surface); padding:10px; display:flex; justify-content:space-around; border-top:1px solid var(--md-sys-color-outline);">
-            <div style="text-align:center; color:var(--md-sys-color-primary);">
-                <span class="material-icons-round">radar</span>
-                <div style="font-size:10px;">Radar</div>
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-pill"><span class="material-icons-round">radar</span></div>
+                <span class="nav-label">Radar</span>
             </div>
-            <div style="text-align:center; color:var(--md-sys-color-outline);" onclick="engine.restart()">
-                <span class="material-icons-round">refresh</span>
-                <div style="font-size:10px;">Rescan</div>
+            <div class="nav-item" onclick="toggleTheme()">
+                <div class="nav-pill"><span class="material-icons-round">palette</span></div>
+                <span class="nav-label">Tema</span>
             </div>
         </div>
     </div>
 
-    <div id="chat-view">
-        <div class="chat-header">
-            <span class="material-icons-round" onclick="closeChat()">arrow_back</span>
-            <div class="my-avatar" id="chat-av-disp">?</div>
-            <div style="flex:1;">
-                <div style="font-weight:bold;" id="chat-name-disp">User</div>
-                <div style="font-size:11px; color:var(--md-sys-color-primary);">● Online</div>
+    <div id="view-chat">
+        <div class="chat-appbar">
+            <span class="material-icons-round" onclick="closeChat()">arrow_back_ios_new</span>
+            <div class="avatar" id="chat-av" style="width:40px; height:40px; font-size:20px;">?</div>
+            <div>
+                <div style="font-weight:500; font-size:18px;" id="chat-name">User</div>
+                <div style="font-size:12px; color:var(--md-primary);">Terhubung via BLE</div>
             </div>
         </div>
-        
-        <div id="msgs-list"></div>
-        
-        <div id="attach-menu">
-            <div class="attach-item" onclick="pickImage()">
-                <span class="material-icons-round" style="color:#E91E63;">image</span> Kirim Foto
-            </div>
-            <div class="attach-item" onclick="sendLocManual()">
-                <span class="material-icons-round" style="color:#2196F3;">location_on</span> Kirim Lokasi
-            </div>
-        </div>
-
+        <div id="msgs"></div>
         <div class="input-bar">
-            <span class="material-icons-round" onclick="toggleAttach()">add_circle</span>
-            <input type="text" id="msg-in" class="msg-input" placeholder="Pesan...">
-            <span class="material-icons-round" style="color:var(--md-sys-color-primary);" onclick="sendMsg('text')">send</span>
+            <input type="text" id="inp-msg" class="input-pill" style="margin:0; height:50px; font-size:16px;" placeholder="Ketik pesan...">
+            <div style="background:var(--md-primary); color:white; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;" onclick="sendMsg()">
+                <span class="material-icons-round">send</span>
+            </div>
         </div>
     </div>
-
-    <input type="file" id="file-in" accept="image/*" style="display:none;" onchange="processImage(this)">
-    <div id="toast">Pesan disalin</div>
 
     <script src="cordova.js"></script>
     <script>
-        const APP_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"; 
-        const CHAR_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
+        // --- BITCHAT CORE UUID ---
+        const SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"; 
+        const CHAR_UUID    = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
 
-        let user = { name: "", avatar: "🤖", id: "" };
+        let user = { name:"", avatar:"😊", id:"" };
+        let ble = null;
         let devices = {};
         let activeAddr = null;
-        let ble = null;
-        let myLocation = "Lokasi Tidak Diketahui";
-        let tempAvatar = "🤖";
-        
-        const AVATARS = ["🤖","👽","🦁","🦊","🐼","👻","💀","💩"];
 
         document.addEventListener('deviceready', () => {
             ble = window.bluetoothle;
-            renderAvatars('setup-avatars');
-            renderAvatars('edit-avatars');
-            checkSession();
-            getLocation();
+            renderAvatars();
+            checkLogin();
         }, false);
 
-        // --- LOCATION SYSTEM ---
-        function getLocation() {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    // Coba reverse geocoding simple
-                    let lat = pos.coords.latitude.toFixed(2);
-                    let lon = pos.coords.longitude.toFixed(2);
-                    // Fetch nama kota (perlu internet dikit, kalau offline pake koordinat)
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`)
-                        .then(r => r.json())
-                        .then(d => {
-                            myLocation = d.address.city || d.address.town || d.address.village || `GPS: ${lat},${lon}`;
-                        })
-                        .catch(() => { myLocation = `GPS: ${lat},${lon}`; });
-                },
-                () => { myLocation = "Lokasi Off"; }
-            );
-        }
+        // --- UI LOGIC ---
+        const AVATARS = ["😎","😊","🐱","🐶","🦁","🤖","👻","👽"];
+        let tempAv = "😎";
 
-        // --- UI & SETUP ---
-        function renderAvatars(id) {
-            let html = AVATARS.map(a => `<div class="grid-item" onclick="pick('${a}', this)">${a}</div>`).join('');
-            document.getElementById(id).innerHTML = html;
+        function renderAvatars() {
+            let h = AVATARS.map(a => `<div class="av-item" onclick="pick('${a}',this)">${a}</div>`).join('');
+            document.getElementById('setup-avatars').innerHTML = h;
+            document.querySelector('.av-item').classList.add('selected');
         }
-
         function pick(a, el) {
-            tempAvatar = a;
-            document.querySelectorAll('.grid-item').forEach(e => e.classList.remove('selected'));
+            tempAv = a;
+            document.querySelectorAll('.av-item').forEach(x=>x.classList.remove('selected'));
             el.classList.add('selected');
+        }
+        function toggleTheme() {
+            if(document.body.getAttribute('data-theme')==='dark') document.body.removeAttribute('data-theme');
+            else document.body.setAttribute('data-theme','dark');
         }
 
         function finishSetup() {
-            let n = document.getElementById('in-name').value.trim();
-            if (!n) return showToast("Isi nama dulu!");
-            user = { name: n, avatar: tempAvatar, id: Math.floor(Math.random()*9999).toString() };
-            localStorage.setItem('bc_user_final', JSON.stringify(user));
-            checkSession();
+            let n = document.getElementById('setup-name').value.trim();
+            if(!n) return alert("Isi nama dulu bos!");
+            user = { name:n, avatar:tempAv, id:Math.floor(Math.random()*9999).toString() };
+            localStorage.setItem('mat_mesh_user', JSON.stringify(user));
+            checkLogin();
         }
 
-        function saveProfile() {
-            let n = document.getElementById('edit-name').value.trim();
-            if(n) user.name = n;
-            user.avatar = tempAvatar;
-            localStorage.setItem('bc_user_final', JSON.stringify(user));
-            updateHeader();
-            toggleEditProfile(false);
-            engine.advertise(); // Restart iklan dengan nama baru
-            showToast("Profil Disimpan");
-        }
-
-        function checkSession() {
-            let s = localStorage.getItem('bc_user_final');
-            if (s) {
+        function checkLogin() {
+            let s = localStorage.getItem('mat_mesh_user');
+            if(s) {
                 user = JSON.parse(s);
-                document.getElementById('setup-view').style.display = 'none';
-                document.getElementById('app-view').style.display = 'flex';
-                updateHeader();
-                engine.init();
+                document.getElementById('view-setup').style.display='none';
+                document.getElementById('view-app').style.display='flex';
+                document.getElementById('head-user').innerText = `Halo, ${user.name}`;
+                initPermissions();
             }
         }
 
-        function updateHeader() {
-            document.getElementById('head-name').innerText = user.name;
-            document.getElementById('head-av').innerText = user.avatar;
+        // --- ENGINE AGRESIF (BIAR NEMBUS REALME/SAMSUNG) ---
+        function initPermissions() {
+            const p = cordova.plugins.permissions;
+            const list = [
+                p.ACCESS_FINE_LOCATION, 
+                p.ACCESS_COARSE_LOCATION, 
+                p.BLUETOOTH_SCAN, 
+                p.BLUETOOTH_ADVERTISE, 
+                p.BLUETOOTH_CONNECT
+            ];
+            
+            document.getElementById('debug').innerText = "Request Permission...";
+            // Force start even if denied (Fix for Android 11 Go false negative)
+            p.requestPermissions(list, () => startEngine(false), () => startEngine(false));
         }
 
-        function toggleEditProfile(show) {
-            let el = document.getElementById('edit-profile-modal');
-            if(show) {
-                el.classList.add('open');
-                document.getElementById('edit-name').value = user.name;
-            } else {
-                el.classList.remove('open');
+        function startEngine(isRestart) {
+            if(isRestart) {
+                document.getElementById('status-txt').innerText = "Restarting...";
+                ble.stopScan(() => {}, () => {});
+                ble.stopAdvertising(() => {}, () => {});
             }
+
+            ble.initialize((res) => {
+                if(res.status === 'enabled') {
+                    document.getElementById('status-txt').innerText = "Aktif";
+                    startAdvertising();
+                    startScanning();
+                } else {
+                    document.getElementById('status-txt').innerText = "Mati";
+                    ble.enable(); // Paksa nyala
+                }
+            }, { request:true, statusReceiver:false });
         }
 
-        function toggleTheme() {
-            if(document.body.getAttribute('data-theme') === 'dark') document.body.removeAttribute('data-theme');
-            else document.body.setAttribute('data-theme', 'dark');
+        // 1. IKLAN (AGRESIF)
+        function startAdvertising() {
+            ble.initializePeripheral({ request:true }, (res) => {
+                if(res.status === 'enabled') {
+                    ble.addService({
+                        service: SERVICE_UUID,
+                        characteristics: [{ 
+                            uuid: CHAR_UUID, permissions: {read:true, write:true}, 
+                            properties: {read:true, write:true, notify:true} 
+                        }]
+                    }, () => {
+                        // SETTING PENTING: High Power & Include Name
+                        ble.startAdvertising({
+                            services:[SERVICE_UUID], service:SERVICE_UUID, 
+                            name:user.name, 
+                            mode:"lowLatency", // Mode Gaming (Cepat)
+                            txPowerLevel:"high", // Sinyal Kuat
+                            connectable:true,
+                            includeDeviceName:true // Biar nama muncul di scan HP lain
+                        }, 
+                        () => console.log("Iklan OK"), 
+                        (e) => console.log("Iklan Gagal", e));
+                    }, (e) => console.log("Service Gagal", e));
+                }
+            }, null);
         }
 
-        // --- BLE ENGINE (ANDROID 11 GO COMPATIBLE) ---
-        const engine = {
-            init: () => {
-                const p = cordova.plugins.permissions;
-                const perms = [
-                    p.ACCESS_FINE_LOCATION, p.ACCESS_COARSE_LOCATION, 
-                    p.BLUETOOTH_SCAN, p.BLUETOOTH_ADVERTISE, p.BLUETOOTH_CONNECT
-                ];
-                
-                document.getElementById('perm-log').innerText = "Request Izin...";
-                
-                // Force Start regardless of permission result (Fix for Android 11 Go)
-                p.requestPermissions(perms, () => engine.start(), () => engine.start());
-            },
+        // 2. SCAN (AGRESIF)
+        function startScanning() {
+            ble.startScan({ 
+                services:[SERVICE_UUID], 
+                scanMode:"lowLatency", // Scan terus-menerus
+                matchMode:"aggressive" // Tangkap sinyal lemah sekalipun
+            }, (res) => {
+                if(res.status === 'scanResult') renderDev(res);
+            }, (e) => console.log("Scan Gagal", e));
+        }
 
-            start: () => {
-                ble.initialize((res) => {
-                    if (res.status === 'enabled') {
-                        engine.advertise(); 
-                        engine.scan();      
-                    } else { ble.enable(); }
-                }, { request: true });
-            },
+        function renderDev(d) {
+            if(devices[d.address]) return;
+            devices[d.address] = d;
 
-            advertise: () => {
-                ble.initializePeripheral({ request: true }, (res) => {
-                    if(res.status === 'enabled') {
-                        ble.addService({
-                            service: APP_UUID,
-                            characteristics: [{ 
-                                uuid: CHAR_UUID, permissions: { read: true, write: true }, 
-                                properties: { read: true, write: true, notify: true } 
-                            }]
-                        }, () => {
-                            ble.startAdvertising({
-                                services: [APP_UUID], service: APP_UUID, name: user.name, 
-                                mode: "lowLatency", connectable: true, 
-                                txPowerLevel: "high", includeDeviceName: true
-                            }, null, null);
-                        }, null);
-                    }
-                }, null);
-            },
+            let name = d.name || "Unknown";
+            // Filter nama kosong
+            if(name === "Unknown" && !d.rssi) return;
 
-            scan: () => {
-                ble.startScan({ services: [APP_UUID], scanMode: "lowLatency", matchMode: "aggressive" }, 
-                (res) => { if (res.status === 'scanResult') engine.render(res); }, null);
-            },
+            let area = document.getElementById('list-area');
+            if(area.innerText.includes("Mencari")) area.innerHTML = "";
 
-            restart: () => {
-                devices = {}; 
-                document.getElementById('content-area').innerHTML = '<div style="text-align:center; padding:50px;">Rescanning...</div>';
-                ble.stopScan(() => engine.scan(), () => engine.scan());
-            },
-
-            render: (dev) => {
-                if (devices[dev.address]) return;
-                devices[dev.address] = dev;
-
-                let name = dev.name || "Unknown";
-                let area = document.getElementById('content-area');
-                if(area.innerHTML.includes("Scanning")) area.innerHTML = "";
-
-                let html = `
-                <div class="card" onclick="chat.open('${dev.address}', '${name}')">
-                    <div class="avatar"><span class="material-icons-round">person</span></div>
-                    <div style="flex:1;">
-                        <div style="font-weight:bold; font-size:16px;">${name}</div>
-                        <div style="font-size:12px; color:gray;">Sinyal: ${dev.rssi} dBm</div>
-                    </div>
-                    <span class="material-icons-round" style="color:var(--md-sys-color-primary);">chat</span>
-                </div>`;
-                area.innerHTML += html;
-            }
-        };
+            let html = `
+            <div class="card" onclick="chatOpen('${d.address}', '${name}')">
+                <div class="avatar"><span class="material-icons-round">person</span></div>
+                <div style="flex:1">
+                    <div style="font-weight:bold; font-size:18px;">${name}</div>
+                    <div style="font-size:12px; color:var(--md-subtext);">Sinyal: ${d.rssi} dBm</div>
+                </div>
+                <span class="material-icons-round" style="color:var(--md-primary);">chat_bubble</span>
+            </div>`;
+            area.innerHTML += html;
+        }
 
         // --- CHAT LOGIC ---
-        const chat = {
-            open: (addr, name) => {
-                activeAddr = addr;
-                document.getElementById('chat-view').style.display = 'flex';
-                document.getElementById('chat-name-disp').innerText = name;
-                document.getElementById('msgs-list').innerHTML = "";
-                
-                ble.connect({ address: addr }, (res) => {
-                    if(res.status === 'connected') {
-                        ble.subscribe({ address: addr, service: APP_UUID, characteristic: CHAR_UUID }, (data) => {
-                            if(data.value) chat.receive(atob(data.value));
-                        });
-                    }
-                }, () => {});
-            },
+        function chatOpen(addr, name) {
+            activeAddr = addr;
+            document.getElementById('view-chat').style.display = 'flex';
+            document.getElementById('chat-name').innerText = name;
+            document.getElementById('msgs').innerHTML = "";
             
-            receive: (jsonStr) => {
-                try {
-                    let data = JSON.parse(jsonStr);
-                    chat.addBubble(data, 'other');
-                } catch(e) { console.log("Data error"); }
-            },
-
-            addBubble: (data, who) => {
-                let div = document.createElement('div');
-                div.className = `bubble ${who}`;
-                
-                // Copy Event
-                div.onclick = () => {
-                    if(data.type === 'text') {
-                        navigator.clipboard.writeText(data.content);
-                        showToast("Teks disalin");
-                    }
-                };
-
-                let content = "";
-                if(data.type === 'image') {
-                    content = `<img src="${data.content}">`;
-                } else {
-                    content = `<span>${data.content}</span>`;
+            ble.connect({ address:addr }, (res) => {
+                if(res.status === 'connected') {
+                    ble.subscribe({ address:addr, service:SERVICE_UUID, characteristic:CHAR_UUID }, (d) => {
+                        if(d.value) addBubble(atob(d.value), 'other');
+                    });
                 }
-                
-                let locBadge = `<div class="meta-loc"><span class="material-icons-round" style="font-size:10px;">place</span> ${data.loc || 'N/A'}</div>`;
-                
-                div.innerHTML = content + locBadge;
-                let list = document.getElementById('msgs-list');
-                list.appendChild(div);
-                list.scrollTop = list.scrollHeight;
-            }
-        };
-
-        function sendMsg(type, content) {
-            let finalContent = content;
-            if(type === 'text') {
-                finalContent = document.getElementById('msg-in').value;
-                if(!finalContent) return;
-            }
-
-            // Paket Data JSON
-            let payload = {
-                type: type,
-                content: finalContent,
-                loc: myLocation
-            };
-
-            let jsonStr = JSON.stringify(payload);
-            let b64 = btoa(jsonStr);
-
-            ble.write({ 
-                address: activeAddr, service: APP_UUID, characteristic: CHAR_UUID, 
-                value: b64, type: "noResponse" 
-            }, () => {
-                chat.addBubble(payload, 'me');
-                if(type==='text') document.getElementById('msg-in').value = "";
-                toggleAttach(); // Close menu if open
-            }, () => showToast("Gagal Kirim"));
+            }, () => {});
         }
 
-        // --- ATTACHMENT & TOOLS ---
-        function toggleAttach() {
-            let m = document.getElementById('attach-menu');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        function sendMsg() {
+            let t = document.getElementById('inp-msg').value;
+            if(!t) return;
+            let b64 = btoa(t);
+            ble.write({ address:activeAddr, service:SERVICE_UUID, characteristic:CHAR_UUID, value:b64, type:"noResponse" }, () => {
+                addBubble(t, 'me');
+                document.getElementById('inp-msg').value = "";
+            });
         }
 
-        function pickImage() { document.getElementById('file-in').click(); }
-        
-        function processImage(el) {
-            let file = el.files[0];
-            if(!file) return;
-            
-            let reader = new FileReader();
-            reader.onload = (e) => {
-                let img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    // Kompresi Kuat biar bisa lewat BLE (Max lebar 300px)
-                    let canvas = document.createElement('canvas');
-                    let ctx = canvas.getContext('2d');
-                    let scale = 300 / img.width;
-                    canvas.width = 300;
-                    canvas.height = img.height * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    let compressed = canvas.toDataURL('image/jpeg', 0.5); // Kualitas 50%
-                    sendMsg('image', compressed);
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function sendLocManual() {
-            sendMsg('text', `Posisi saya di: ${myLocation}`);
+        function addBubble(t, w) {
+            let d = document.createElement('div');
+            d.className = `bubble ${w}`; d.innerText = t;
+            document.getElementById('msgs').appendChild(d);
         }
 
         function closeChat() {
-            document.getElementById('chat-view').style.display = 'none';
-            if(activeAddr) ble.disconnect({ address: activeAddr });
-        }
-
-        function showToast(msg) {
-            let t = document.getElementById('toast');
-            t.innerText = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
+            document.getElementById('view-chat').style.display='none';
+            if(activeAddr) ble.disconnect({address:activeAddr});
         }
     </script>
 </body>
