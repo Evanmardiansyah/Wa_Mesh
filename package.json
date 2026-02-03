@@ -2,7 +2,7 @@
     "name": "com.agan.wabluetooth",
     "displayName": "WA Bluetooth",
     "version": "1.0.0",
-    "description": "Chat Offline BLE",
+    "description": "Messenger Mesh BLE",
     "main": "index.js",
     "dependencies": {
         "cordova-android": "^13.0.0",
