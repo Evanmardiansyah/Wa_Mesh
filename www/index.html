@@ -69,7 +69,8 @@
         @keyframes fadeUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
 
         /* LIST ITEMS */
-        .list-item { padding:15px 20px; background:var(--bg-card); margin-bottom:1px; display:flex; align-items:center; cursor:pointer; }
+        .list-item { padding:15px 20px; background:var(--bg-card); margin-bottom:1px; display:flex; align-items:center; cursor:pointer; border-bottom:1px solid var(--border); transition:0.2s; }
+        .list-item:active { background:var(--bg-app); }
         .avatar-circle { width:45px; height:45px; background:#e0f2fe; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-right:15px; position:relative; }
         .online-dot { position:absolute; bottom:0; right:0; width:12px; height:12px; background:#10b981; border:2px solid var(--bg-card); border-radius:50%; }
         
@@ -81,7 +82,7 @@
         .profile-card { background:var(--bg-card); margin:20px; padding:30px; border-radius:20px; text-align:center; border:1px solid var(--border); }
         .my-avatar { width:90px; height:90px; background:#f3f4f6; border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:40px; color:#333; }
         
-        /* BOTTOM NAV */
+        /* BOTTOM NAV (FLOATING) */
         .nav { position:fixed; bottom:20px; left:20px; right:20px; background:var(--nav-bg); padding:15px; border-radius:20px; display:flex; justify-content:space-around; box-shadow:0 10px 30px rgba(0,0,0,0.1); z-index:50; }
         .nav-item { text-align:center; color:var(--text-sub); font-size:10px; font-weight:600; opacity:0.7; transition:0.2s; }
         .nav-item.active { color:var(--primary); opacity:1; transform:translateY(-2px); }
@@ -101,23 +102,19 @@
 <body>
 
     <div id="setup-screen">
-        <div class="setup-title">Setup Profil</div>
-        <p style="color:gray; margin-bottom:30px;">Buat identitas Mesh-mu agar dikenali teman.</p>
+        <div class="setup-title">Messenger Mesh</div>
+        <p style="color:gray; margin-bottom:30px;">Buat identitas untuk chat di jaringan lokal.</p>
         
         <div class="setup-step">
-            <label class="setup-label">Username / Nama Panggilan</label>
-            <input type="text" id="setup-name" class="setup-input" placeholder="Contoh: Agent 007">
+            <label class="setup-label">Nama Kamu</label>
+            <input type="text" id="setup-name" class="setup-input" placeholder="Misal: Captain Indo">
         </div>
 
         <div class="setup-step">
             <label class="setup-label">Gender</label>
             <div class="grid-select">
-                <div class="choice-card" onclick="selGender('Laki', this)" id="g-laki">
-                    <span class="choice-icon">👨</span> Laki
-                </div>
-                <div class="choice-card" onclick="selGender('Perempuan', this)" id="g-pr">
-                    <span class="choice-icon">👩</span> Pr
-                </div>
+                <div class="choice-card" onclick="selGender('Laki', this)" id="g-laki"><span class="choice-icon">👨</span>Laki</div>
+                <div class="choice-card" onclick="selGender('Perempuan', this)" id="g-pr"><span class="choice-icon">👩</span>Pr</div>
             </div>
         </div>
 
@@ -128,30 +125,29 @@
                 <div class="choice-card" onclick="selAvatar('alien', this)"><span class="choice-icon">👽</span></div>
                 <div class="choice-card" onclick="selAvatar('ninja', this)"><span class="choice-icon">🥷</span></div>
                 <div class="choice-card" onclick="selAvatar('ghost', this)"><span class="choice-icon">👻</span></div>
-                <div class="choice-card" onclick="selAvatar('cat', this)"><span class="choice-icon">😼</span></div>
             </div>
         </div>
 
-        <button class="btn-start" onclick="saveSetup()">MASUK MESH NETWORK</button>
+        <button class="btn-start" onclick="saveSetup()">GABUNG NETWORK</button>
     </div>
 
     <div id="app-container">
         <header>
             <div>
-                <div class="head-title">Pesan</div>
-                <div style="font-size:12px; color:gray;" id="my-identity">User</div>
+                <div class="head-title">Radar</div>
+                <div style="font-size:12px; color:gray;" id="my-identity">Menunggu...</div>
             </div>
-            <div class="status-badge"><div class="pulse"></div> BLE Aktif</div>
+            <div class="status-badge"><div class="pulse"></div> BLE On</div>
         </header>
 
         <div id="pages">
             <div id="p-radar" class="page active">
                 <div class="radar-box">
-                    <div class="radar-circle"><i class="fas fa-satellite-dish"></i></div>
-                    <h3>Radar Sekitar</h3>
-                    <p style="color:gray; font-size:13px;">Otomatis mendeteksi pengguna Mesh lain...</p>
+                    <div class="radar-circle"><i class="fas fa-search-location"></i></div>
+                    <h3>Scanning...</h3>
+                    <p style="color:gray; font-size:13px;">HP lain di radius 20m akan muncul di bawah.</p>
                 </div>
-                <div style="padding:0 20px; font-weight:bold; margin-bottom:10px;">Ditemukan:</div>
+                <div style="padding:0 20px; font-weight:bold; margin-bottom:10px; color:var(--text-sub);">ORANG DI SEKITAR:</div>
                 <div id="list-nearby"></div>
             </div>
 
@@ -161,7 +157,7 @@
                     <h2 id="prof-name">User</h2>
                     <div style="font-size:12px; background:#eee; color:#333; padding:5px 10px; border-radius:10px; display:inline-block;" id="prof-gender">Gender</div>
                     <br><br>
-                    <div style="font-family:monospace; color:gray;" id="prof-id">ID: MESH-XXX</div>
+                    <div style="font-family:monospace; color:gray;" id="prof-id">ID: XXX</div>
                 </div>
                 <div class="profile-card" style="text-align:left; padding:15px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -177,7 +173,7 @@
                 <i class="fas fa-radar nav-icon"></i> Radar
             </div>
             <div class="nav-item" id="n-profile" onclick="nav('profile')">
-                <i class="fas fa-user-astronaut nav-icon"></i> Profil
+                <i class="fas fa-user-circle nav-icon"></i> Profil
             </div>
         </div>
     </div>
@@ -189,7 +185,7 @@
         </div>
         <div id="msgs"></div>
         <div class="input-bar">
-            <input type="text" id="chat-input" placeholder="Ketik pesan...">
+            <input type="text" id="chat-input" placeholder="Tulis pesan rahasia...">
             <i class="fas fa-paper-plane" onclick="sendMsg()" style="font-size:24px; color:var(--primary); align-self:center;"></i>
         </div>
     </div>
@@ -197,7 +193,10 @@
     <script src="cordova.js"></script>
     <script>
         var ble;
-        var MY_UUID = "180F"; // UUID Bajakan (Battery Service) biar kompatibel semua HP
+        // UUID: Heart Rate Service (Standar) agar mudah dideteksi
+        var MESH_SERVICE = "180D"; 
+        var MESH_CHAR = "2A37"; 
+        
         var user = { name:"", gender:"", avatar:"🤖", id:"" };
         var activeAddr = "";
 
@@ -206,40 +205,27 @@
             checkLogin();
         }, false);
 
-        // --- SETUP LOGIC ---
+        // --- SETUP ---
         var tempGender="", tempAvatar="🤖";
-
-        function selGender(g, el) {
-            tempGender = g;
-            document.querySelectorAll('#g-laki, #g-pr').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-        }
-        function selAvatar(a, el) {
-            var icons = {'robot':'🤖','alien':'👽','ninja':'🥷','ghost':'👻','cat':'😼'};
-            tempAvatar = icons[a];
-            document.querySelectorAll('.choice-card').forEach(x=>x.classList.remove('selected'));
-            el.classList.add('selected');
-        }
+        function selGender(g, el) { tempGender=g; document.querySelectorAll('#g-laki, #g-pr').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); }
+        function selAvatar(a, el) { var i={'robot':'🤖','alien':'👽','ninja':'🥷','ghost':'👻'}; tempAvatar=i[a]; document.querySelectorAll('.choice-card').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); }
 
         function saveSetup() {
             var n = document.getElementById('setup-name').value.trim();
-            if(!n || !tempGender) return alert("Isi Nama & Pilih Gender dulu!");
-            
-            var id = "MESH-" + Math.floor(Math.random()*9999);
-            var data = { name:n, gender:tempGender, avatar:tempAvatar, id:id };
-            
-            localStorage.setItem('mesh_user', JSON.stringify(data));
+            if(!n || !tempGender) return alert("Lengkapi data dulu!");
+            var id = "AGT-" + Math.floor(Math.random()*999);
+            localStorage.setItem('mesh_user', JSON.stringify({ name:n, gender:tempGender, avatar:tempAvatar, id:id }));
             checkLogin();
         }
 
         function checkLogin() {
-            var saved = localStorage.getItem('mesh_user');
-            if(saved) {
-                user = JSON.parse(saved);
+            var s = localStorage.getItem('mesh_user');
+            if(s) {
+                user = JSON.parse(s);
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
                 
-                // Update UI Profil
+                // Update Info UI
                 document.getElementById('my-identity').innerText = user.name;
                 document.getElementById('prof-name').innerText = user.name;
                 document.getElementById('prof-avatar').innerText = user.avatar;
@@ -250,96 +236,113 @@
             }
         }
 
-        // --- BLE LOGIC (AUTO DETECT) ---
+        // --- BLE ENGINE ---
         function initBLE() {
-            // Izin
             var p = cordova.plugins.permissions;
-            p.requestPermissions([
-                p.ACCESS_FINE_LOCATION, p.BLUETOOTH_SCAN, p.BLUETOOTH_ADVERTISE, p.BLUETOOTH_CONNECT
-            ], function(){
-                startBLESystem();
-            }, function(){});
+            p.requestPermissions([p.ACCESS_FINE_LOCATION, p.BLUETOOTH_SCAN, p.BLUETOOTH_ADVERTISE, p.BLUETOOTH_CONNECT], 
+            function(){ startEngine(); }, function(){ alert("Izin Bluetooth Ditolak!"); });
         }
 
-        function startBLESystem() {
-            ble.initialize(function(s){ 
-                if(s.status === 'enabled') {
-                    startAdvertising();
-                    startScanning();
+        function startEngine() {
+            ble.initialize(function(status){
+                if(status.status === 'enabled') {
+                    // 1. Mulai Broadcast Diri Sendiri (Biar orang lain liat)
+                    advertiseMyself();
+                    // 2. Mulai Scan Orang Lain (Biar kita liat orang lain)
+                    scanOthers();
                 }
             });
         }
 
-        function startAdvertising() {
-            // Kita pancarkan Nama User kita
+        function advertiseMyself() {
             ble.initializePeripheral({ request:true }, function(res){
                 if(res.status==='enabled') {
                     ble.addService({
-                        service: MY_UUID,
-                        characteristics: [{ uuid:"2A19", permissions:{read:true,write:true}, properties:{read:true,write:true,notify:true} }]
+                        service: MESH_SERVICE,
+                        characteristics: [{ uuid:MESH_CHAR, permissions:{read:true,write:true}, properties:{read:true,write:true,notify:true} }]
                     }, function(){
-                        ble.startAdvertising({ services:[MY_UUID], service:MY_UUID, name:user.name }, 
-                        function(){ console.log("Broadcasting " + user.name); }, function(){});
+                        // Advertise Nama User
+                        ble.startAdvertising({ services:[MESH_SERVICE], service:MESH_SERVICE, name:user.name }, 
+                        function(){ console.log("Broadcasting OK"); }, function(e){ console.log("Broadcast Fail",e); });
                     }, function(){});
                 }
             }, function(){});
         }
 
-        function startScanning() {
-            ble.startScan({ services:[MY_UUID] }, function(res){
+        function scanOthers() {
+            ble.startScan({ services:[MESH_SERVICE] }, function(res){
                 if(res.status === 'scanResult') {
-                    renderDevice(res);
+                    renderPerson(res);
                 }
-            }, function(e){ console.log(e); });
+            }, function(e){ console.log("Scan Error",e); });
         }
 
-        var found = {};
-        function renderDevice(d) {
-            if(found[d.address]) return;
-            found[d.address] = d;
+        var detected = {};
+        function renderPerson(dev) {
+            if(detected[dev.address]) return; // Cegah duplikat
+            detected[dev.address] = dev;
             
-            var name = d.name || "Unknown Mesh";
+            var name = dev.name || "Unknown Agent";
             var el = document.getElementById('list-nearby');
             
-            var html = `<div class="list-item" onclick="openChat('${d.address}','${name}')">
+            // Tampilan Card Orang
+            var html = `
+            <div class="list-item" onclick="japri('${dev.address}', '${name}')">
                 <div class="avatar-circle"><i class="fas fa-user"></i><div class="online-dot"></div></div>
-                <div><div style="font-weight:bold;">${name}</div><div style="font-size:11px; color:gray;">Tap untuk chat</div></div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:16px;">${name}</div>
+                    <div style="font-size:12px; color:var(--primary);">Tap untuk Japri</div>
+                </div>
+                <i class="fas fa-comment-dots" style="color:#ccc;"></i>
             </div>`;
             el.innerHTML += html;
         }
 
-        // --- CHAT LOGIC ---
-        function openChat(addr, name) {
+        // --- JAPRI LOGIC ---
+        function japri(addr, name) {
             activeAddr = addr;
-            document.getElementById('chat-screen').style.display='flex';
+            document.getElementById('chat-screen').style.display = 'flex';
             document.getElementById('chat-title').innerText = name;
+            document.getElementById('msgs').innerHTML = ""; // Bersihkan chat lama
             
-            ble.connect({ address:addr }, function(r){
-                if(r.status === 'connected') {
-                    // Subscribe pesan masuk
-                    ble.subscribe({ address:addr, service:MY_UUID, characteristic:"2A19" }, function(data){
+            // Konek ke HP teman
+            ble.connect({ address:addr }, function(res){
+                if(res.status === 'connected') {
+                    // Dengerin Pesan
+                    ble.subscribe({ address:addr, service:MESH_SERVICE, characteristic:MESH_CHAR }, function(data){
                         if(data.value) {
-                            var txt = atob(data.value);
+                            var txt = atob(data.value); // Decode
                             addBubble(txt, 'other');
                         }
                     }, function(){});
                 }
-            }, function(){ alert("Gagal konek, coba lagi."); });
+            }, function(){ alert("Gagal Konek. Pastikan dia masih di sekitar."); });
         }
 
         function sendMsg() {
             var t = document.getElementById('chat-input').value;
             if(!t) return;
-            var b64 = btoa(t);
-            ble.write({ address:activeAddr, service:MY_UUID, characteristic:"2A19", value:b64, type:"noResponse" }, function(){
+            
+            var b64 = btoa(t); // Encode Text ke Base64
+            
+            ble.write({ 
+                address:activeAddr, 
+                service:MESH_SERVICE, 
+                characteristic:MESH_CHAR, 
+                value:b64, 
+                type:"noResponse" 
+            }, function(){
                 addBubble(t, 'me');
                 document.getElementById('chat-input').value="";
-            }, function(){ alert("Gagal kirim"); });
+            }, function(e){ alert("Gagal kirim: "+JSON.stringify(e)); });
         }
 
-        function addBubble(t, who) {
-            var d = document.createElement('div'); d.className="bubble "+who; d.innerText=t;
+        function addBubble(txt, who) {
+            var d = document.createElement('div'); 
+            d.className="bubble "+who; 
+            d.innerText=txt;
             document.getElementById('msgs').appendChild(d);
+            document.getElementById('msgs').scrollTop = 99999;
         }
 
         function closeChat() {
@@ -347,14 +350,13 @@
             if(activeAddr) ble.disconnect({address:activeAddr});
         }
 
-        // --- UI UTILS ---
+        // --- UTILS ---
         function nav(p) {
             document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
             document.getElementById('p-'+p).classList.add('active');
             document.getElementById('n-'+p).classList.add('active');
         }
-
         function toggleTheme() {
             if(document.body.getAttribute('data-theme')==='dark') document.body.removeAttribute('data-theme');
             else document.body.setAttribute('data-theme','dark');
